@@ -1,2 +1,2 @@
 var language = "lox";
-var lhl = "lox";
+var lhl = 2;
