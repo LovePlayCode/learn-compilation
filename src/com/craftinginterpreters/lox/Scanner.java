@@ -185,7 +185,7 @@ class Scanner {
         // Look for a fractional part.
         if (peek() == '.' && isDigit(peekNext())) {
             // Consume the "."
-            advance();
+            advance();w
 
             while (isDigit(peek()))
                 advance();
@@ -245,7 +245,7 @@ class Scanner {
         return source.charAt(current + 1);
     } // [peek-next]
       // < peek-next
-    // > is-alpha
+      // > is-alpha
 
     private boolean isAlpha(char c) {
         return (c >= 'a' && c <= 'z') ||
@@ -263,7 +263,7 @@ class Scanner {
         return c >= '0' && c <= '9';
     } // [is-digit]
       // < is-digit
-    // > is-at-end
+      // > is-at-end
 
     private boolean isAtEnd() {
         return current >= source.length();
