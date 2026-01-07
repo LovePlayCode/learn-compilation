@@ -47,7 +47,23 @@ class Parser {
     }
 
     private Expr expression() {
-        return equality();
+        return comma();
+    }
+
+    // comma → equality ( "," equality )* ;
+    // 逗号运算符：优先级最低，左结合
+    // 运行时：计算左操作数并丢弃结果，然后计算并返回右操作数
+    private Expr comma() {
+        Expr expr = equality();
+
+        while (match(COMMA)) {
+            Token operator = previous();
+
+            Expr right = equality();
+            expr = new Expr.Binary(expr, operator, right);
+        }
+
+        return expr;
     }
 
     private boolean isAtEnd() {
