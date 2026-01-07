@@ -77,8 +77,8 @@ public class Lox {
 
         System.out.println(new AstPrinter().print(expression));
         // For now, just print the tokens.
-        for (Token token : tokens) {
-            System.out.println(token);
-        }
+        // for (Token token : tokens) {
+        // System.out.println(token);
+        // }
     }
 }
