@@ -62,10 +62,10 @@ public class Scanner {
     private final List<String> errors = new ArrayList<>();
 
     // 扫描状态
-    private int start = 0;      // 当前词素起始位置
-    private int current = 0;    // 当前字符位置
-    private int line = 1;       // 当前行号
-    private int column = 1;     // 当前列号
+    private int start = 0; // 当前词素起始位置
+    private int current = 0; // 当前字符位置
+    private int line = 1; // 当前行号
+    private int column = 1; // 当前列号
     private int startColumn = 1; // 词素起始列号
 
     public Scanner(String source) {
@@ -257,7 +257,7 @@ public class Scanner {
                 column = 1;
                 break;
 
-            // 字符串
+            // 解析字符串(支持双引号和单引号)
             case '"':
             case '\'':
                 string(c);

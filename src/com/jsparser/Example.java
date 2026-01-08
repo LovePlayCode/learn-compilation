@@ -15,10 +15,10 @@ public class Example {
         // 示例 2: 函数定义
         System.out.println("\n=== 示例 2: 函数定义 ===");
         tokenize("""
-            function greet(name) {
-                return "Hello, " + name;
-            }
-            """);
+                function greet(name) {
+                    return "Hello, " + name;
+                }
+                """);
 
         // 示例 3: 各种运算符
         System.out.println("\n=== 示例 3: 运算符 ===");
@@ -31,16 +31,18 @@ public class Example {
         // 示例 5: 字符串转义
         System.out.println("\n=== 示例 5: 字符串 ===");
         tokenize("var s = \"Hello\\nWorld\"; var s2 = 'Tab:\\tHere';");
-
+        // 示例 6: 字符串单引号
+        System.out.println("\n=== 示例 5: 字符串 ===");
+        tokenize("var s = \'Hello\\nWorld\'; var s2 = 'Tab:\\tHere';");
         // 示例 6: 控制流
         System.out.println("\n=== 示例 6: 控制流 ===");
         tokenize("""
-            if (x > 0) {
-                console.log("positive");
-            } else {
-                console.log("non-positive");
-            }
-            """);
+                if (x > 0) {
+                    console.log("positive");
+                } else {
+                    console.log("non-positive");
+                }
+                """);
 
         // 示例 7: 数组和对象
         System.out.println("\n=== 示例 7: 数组和对象 ===");
@@ -60,7 +62,7 @@ public class Example {
 
         for (Token token : tokens) {
             if (token.getType() != TokenType.EOF) {
-                System.out.printf("  %-20s '%s'", token.getType(), token.getLexeme());
+                System.out.printf("  [%d:%d] %-20s '%s'", token.getLine(), token.getColumn(), token.getType(), token.getLexeme());
                 if (token.getLiteral() != null) {
                     System.out.printf(" -> %s", token.getLiteral());
                 }
