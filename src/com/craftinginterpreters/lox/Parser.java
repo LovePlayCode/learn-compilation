@@ -80,6 +80,24 @@ class Parser {
 
         return statements;
     }
+    
+    /**
+     * 尝试将输入解析为单个表达式（用于 REPL 模式）
+     * 如果解析成功且消费了所有 token，返回表达式
+     * 否则返回 null
+     */
+    Expr parseExpression() {
+        try {
+            Expr expr = expression();
+            // 确保已经消费了所有 token（除了 EOF）
+            if (isAtEnd()) {
+                return expr;
+            }
+            return null; // 还有剩余 token，不是纯表达式
+        } catch (ParseError error) {
+            return null;
+        }
+    }
 
     private void synchronize() {
         advance();

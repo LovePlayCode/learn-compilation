@@ -70,6 +70,22 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
             Lox.runtimeError(error);
         }
     }
+    
+    /**
+     * 求值单个表达式并返回结果字符串（用于 REPL 模式）
+     * 
+     * @param expression 要求值的表达式
+     * @return 求值结果的字符串表示，如果发生错误返回 null
+     */
+    String interpretExpression(Expr expression) {
+        try {
+            Object value = evaluate(expression);
+            return stringify(value);
+        } catch (RuntimeError error) {
+            Lox.runtimeError(error);
+            return null;
+        }
+    }
 
     @Override
     public Object visitUnaryExpr(Expr.Unary expr) {
