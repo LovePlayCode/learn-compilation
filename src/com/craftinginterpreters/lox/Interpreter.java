@@ -115,15 +115,18 @@ class Interpreter implements Expr.Visitor<Object> {
 
             // 新增部分开始
             case PLUS:
+                // 优先处理数字加法
                 if (left instanceof Double && right instanceof Double) {
                     return (double) left + (double) right;
                 }
 
-                if (left instanceof String && right instanceof String) {
-                    return (String) left + (String) right;
+                // 如果任一操作数是字符串，将另一个转换为字符串并拼接
+                if (left instanceof String || right instanceof String) {
+                    return stringify(left) + stringify(right);
                 }
+
                 throw new RuntimeError(expr.operator,
-                        "Operands must be two numbers or two strings.");
+                        "Operands must be two numbers or at least one string.");
             // 新增部分结束
             case SLASH:
                 checkNumberOperands(expr.operator, left, right);
