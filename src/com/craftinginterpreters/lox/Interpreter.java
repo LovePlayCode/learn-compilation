@@ -73,11 +73,21 @@ class Interpreter implements Expr.Visitor<Object> {
         return null;
     }
 
+    @Override
+    public Object visitVariableExpr(Expr.Variable expr) {
+        return null;
+    }
+
     private void checkNumberOperands(Token operator, Object left, Object right) {
         if (left instanceof Double && right instanceof Double)
             return;
 
         throw new RuntimeError(operator, "Operands must be numbers.");
+    }
+
+    @Override
+    public Object visitAssignExpr(Expr.Assign expr) {
+        return null;
     }
 
     @Override
@@ -88,21 +98,14 @@ class Interpreter implements Expr.Visitor<Object> {
         switch (expr.operator.type) {
             // 新增部分开始
             case GREATER:
-                // 新增部分开始
-                checkNumberOperands(expr.operator, left, right);
-                return (double) left > (double) right;
+                // 使用新的混合类型比较器
+                return TypeComparator.greater(left, right);
             case GREATER_EQUAL:
-                checkNumberOperands(expr.operator, left, right);
-
-                return (double) left >= (double) right;
+                return TypeComparator.greaterEqual(left, right);
             case LESS:
-                checkNumberOperands(expr.operator, left, right);
-
-                return (double) left < (double) right;
+                return TypeComparator.less(left, right);
             case LESS_EQUAL:
-                checkNumberOperands(expr.operator, left, right);
-
-                return (double) left <= (double) right;
+                return TypeComparator.lessEqual(left, right);
             // 新增部分结束
             case MINUS:
                 // > check-minus-operand
@@ -141,8 +144,38 @@ class Interpreter implements Expr.Visitor<Object> {
     }
 
     @Override
+    public Object visitCallExpr(Expr.Call expr) {
+        return null;
+    }
+
+    @Override
+    public Object visitGetExpr(Expr.Get expr) {
+        return null;
+    }
+
+    @Override
     public Object visitLiteralExpr(Expr.Literal expr) {
         return expr.value;
+    }
+
+    @Override
+    public Object visitLogicalExpr(Expr.Logical expr) {
+        return null;
+    }
+
+    @Override
+    public Object visitSetExpr(Expr.Set expr) {
+        return null;
+    }
+
+    @Override
+    public Object visitSuperExpr(Expr.Super expr) {
+        return null;
+    }
+
+    @Override
+    public Object visitThisExpr(Expr.This expr) {
+        return null;
     }
 
     @Override
