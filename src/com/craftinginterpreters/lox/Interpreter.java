@@ -206,10 +206,27 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         return evaluate(expr.expression);
     }
 
+    void executeBlock(List<Stmt> statements,
+            Environment environment) {
+
+        // 解析块作用域之前，先保存当前作用域
+        Environment previous = this.environment;
+        try {
+            this.environment = environment;
+
+            for (Stmt statement : statements) {
+                execute(statement);
+            }
+        } finally {
+            // 执行完毕之后，恢复当前作用域
+            this.environment = previous;
+        }
+    }
+
     @Override
     public Void visitBlockStmt(Block stmt) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'visitBlockStmt'");
+        executeBlock(stmt.statements, new Environment(environment));
+        return null;
     }
 
     @Override
