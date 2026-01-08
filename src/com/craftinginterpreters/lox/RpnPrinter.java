@@ -8,8 +8,8 @@ class RpnPrinter implements Expr.Visitor<String> {
     @Override
     public String visitBinaryExpr(Expr.Binary expr) {
         return expr.left.accept(this) + " " +
-               expr.right.accept(this) + " " +
-               expr.operator.lexeme;
+                expr.right.accept(this) + " " +
+                expr.operator.lexeme;
     }
 
     @Override
@@ -58,15 +58,15 @@ class RpnPrinter implements Expr.Visitor<String> {
     @Override
     public String visitLogicalExpr(Expr.Logical expr) {
         return expr.left.accept(this) + " " +
-               expr.right.accept(this) + " " +
-               expr.operator.lexeme;
+                expr.right.accept(this) + " " +
+                expr.operator.lexeme;
     }
 
     @Override
     public String visitSetExpr(Expr.Set expr) {
         return expr.object.accept(this) + " " +
-               expr.name.lexeme + " " +
-               expr.value.accept(this) + " .=";
+                expr.name.lexeme + " " +
+                expr.value.accept(this) + " .=";
     }
 
     @Override

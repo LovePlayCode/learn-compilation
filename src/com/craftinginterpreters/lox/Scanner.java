@@ -185,7 +185,7 @@ class Scanner {
         // Look for a fractional part.
         if (peek() == '.' && isDigit(peekNext())) {
             // Consume the "."
-            advance();w
+            advance();
 
             while (isDigit(peek()))
                 advance();

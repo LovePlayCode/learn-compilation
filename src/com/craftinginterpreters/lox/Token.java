@@ -22,6 +22,7 @@ class Token {
 
     /**
      * 构造一个 Token
+     * 
      * @param type    Token 类型
      * @param lexeme  原始词素文本
      * @param literal 字面量值（NUMBER/STRING 类型使用）
