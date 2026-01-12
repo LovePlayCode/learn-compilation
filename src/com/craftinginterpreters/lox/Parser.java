@@ -157,6 +157,45 @@ class Parser {
      * 遇到 or 关键字时，继续解析右操作数
      * 同样是左结合性
      * 优先级示例: a or b and c 被解析为 a or (b and c)，因为 and 优先级更高。
+     * eg: a or b and c or d or f and g
+     * or()
+     * ├── and() // 解析第一个 or 的左操作数
+     * │ ├── equality() → Variable(a)
+     * │ └── match(AND) → false // a 后面是 or
+     * │ └── 返回 Variable(a)
+     * │
+     * ├── match(OR) → true // 第一个 or
+     * │
+     * ├── and() // 解析 or 的右操作数
+     * │ ├── equality() → Variable(b)
+     * │ ├── match(AND) → true // 遇到 and
+     * │ ├── equality() → Variable(c)
+     * │ └── 返回 Logical(b, and, c)
+     * │
+     * ├── expr = Logical(a, or, Logical(b, and, c))
+     * │
+     * ├── match(OR) → true // while 继续，第二个 or
+     * │
+     * ├── and()
+     * │ ├── equality() → Variable(d)
+     * │ └── match(AND) → false // d 后面是 or
+     * │ └── 返回 Variable(d)
+     * │
+     * ├── expr = Logical(Logical(a, or, Logical(b, and, c)), or, d)
+     * │
+     * ├── match(OR) → true // while 继续，第三个 or
+     * │
+     * ├── and()
+     * │ ├── equality() → Variable(f)
+     * │ ├── match(AND) → true // 遇到 and
+     * │ ├── equality() → Variable(g)
+     * │ └── 返回 Logical(f, and, g)
+     * │
+     * ├── expr = Logical(Logical(Logical(a, or, Logical(b, and, c)), or, d), or,
+     * Logical(f, and, g))
+     * │
+     * ├── match(OR) → false // 没有更多 or
+     * └── 返回最终 expr
      * 
      * @return
      */
