@@ -151,6 +151,15 @@ class Parser {
         return expr;
     }
 
+    /**
+     * 解析: a or b or c
+     * 先调用 and() 解析左操作数（and 优先级高于 or）
+     * 遇到 or 关键字时，继续解析右操作数
+     * 同样是左结合性
+     * 优先级示例: a or b and c 被解析为 a or (b and c)，因为 and 优先级更高。
+     * 
+     * @return
+     */
     private Expr or() {
         Expr expr = and();
 
