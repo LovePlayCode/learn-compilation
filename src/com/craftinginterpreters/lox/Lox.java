@@ -111,10 +111,9 @@ public class Lox {
     private static void run(String source) {
         Scanner scanner = new Scanner(source);
         List<Token> tokens = scanner.scanTokens();
-        // 替换部分开始
         Parser parser = new Parser(tokens);
         List<Stmt> statements = parser.parse();
-
+        System.out.println("statements=="+statements);
         // Stop if there was a syntax error.
         if (hadError)
             return;
