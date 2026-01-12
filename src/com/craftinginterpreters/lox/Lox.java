@@ -68,13 +68,13 @@ public class Lox {
             String line = reader.readLine();
             if (line == null)
                 break;
-            
+
             // REPL 模式：智能识别表达式和语句
             runRepl(line);
             hadError = false;
         }
     }
-    
+
     /**
      * REPL 智能执行：支持表达式自动求值打印和语句执行
      * 
@@ -90,7 +90,7 @@ public class Lox {
             List<Token> tokens = scanner.scanTokens();
             Parser parser = new Parser(tokens);
             Expr expression = parser.parseExpression();
-            
+
             if (expression != null && !hadError) {
                 // 成功解析为表达式，求值并打印结果
                 String result = interpreter.interpretExpression(expression);
@@ -99,11 +99,11 @@ public class Lox {
                 }
                 return;
             }
-            
+
             // 表达式解析失败，重置错误状态，尝试作为语句处理
             hadError = false;
         }
-        
+
         // 作为语句执行
         run(source);
     }
@@ -113,7 +113,10 @@ public class Lox {
         List<Token> tokens = scanner.scanTokens();
         Parser parser = new Parser(tokens);
         List<Stmt> statements = parser.parse();
-        System.out.println("statements=="+statements);
+        
+        // 打印 AST 语法树
+        System.out.println(new AstTreePrinter().print(statements));
+        
         // Stop if there was a syntax error.
         if (hadError)
             return;
