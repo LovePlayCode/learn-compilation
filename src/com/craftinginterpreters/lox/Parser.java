@@ -39,7 +39,24 @@ class Parser {
         return statements;
     }
 
+    private Stmt ifStatement() {
+        consume(LEFT_PAREN, "Expect '(' after 'if'.");
+        Expr condition = expression();
+        consume(RIGHT_PAREN, "Expect ')' after if condition.");
+
+        Stmt thenBranch = statement();
+        Stmt elseBranch = null;
+        if (match(ELSE)) {
+            elseBranch = statement();
+        }
+
+        return new Stmt.If(condition, thenBranch, elseBranch);
+    }
+
     private Stmt statement() {
+        // 新增部分开始
+        if (match(IF))
+            return ifStatement();
         if (match(PRINT))
             return printStatement();
         if (match(LEFT_BRACE))
@@ -80,7 +97,7 @@ class Parser {
 
         return statements;
     }
-    
+
     /**
      * 尝试将输入解析为单个表达式（用于 REPL 模式）
      * 如果解析成功且消费了所有 token，返回表达式
