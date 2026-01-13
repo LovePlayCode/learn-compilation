@@ -5,6 +5,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
+/**
+ * 1. 没有副作用，当静态分析处理一个 print 时，不会打印任何东西，对本地函数或其他外部世界联系的操作也会被终止，并且没有任何影响。
+ * 2. 没有控制流，循环只会被处理一次，if 语句中的两个分支都会处理，逻辑操作符也不会做短路处理。
+ */
 class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
     private final Interpreter interpreter;
     private final Stack<Map<String, Boolean>> scopes = new Stack<>();
