@@ -108,6 +108,7 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
 
     @Override
     public Void visitVariableExpr(Expr.Variable expr) {
+        // 判断是否有定义使用自己的情况，比如 var a = a; 会直接报错
         if (!scopes.isEmpty() &&
                 scopes.peek().get(expr.name.lexeme) == Boolean.FALSE) {
             Lox.error(expr.name,

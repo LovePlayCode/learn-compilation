@@ -1,6 +1,12 @@
 var a = "global";
+
 {
+
   fun showA() {
+    var d = "hello world";
+    if(d == "hello world"){
+      print d;
+    }
     print a;
   }
 
