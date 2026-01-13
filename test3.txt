@@ -1,0 +1,6 @@
+
+
+sayHi("Dear", "Reader");
+fun sayHi(first, last) {
+  print "Hi, " + first + " " + last + "!";
+}
