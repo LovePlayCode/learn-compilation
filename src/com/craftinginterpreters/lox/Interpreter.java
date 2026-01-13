@@ -226,6 +226,12 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     }
 
     @Override
+    public Object visitFunctionExpr(Expr.Function expr) {
+        // 创建匿名函数对象
+        return new LoxLambda(expr);
+    }
+
+    @Override
     public Object visitGetExpr(Expr.Get expr) {
         return null;
     }

@@ -166,8 +166,10 @@ class Parser {
 
     private Stmt declaration() {
         try {
-            if (match(FUN))
+            if (check(FUN)) {
+                advance(); // 消费 fun
                 return function("function");
+            }
             if (match(VAR))
                 return varDeclaration();
 
@@ -176,6 +178,16 @@ class Parser {
             synchronize();
             return null;
         }
+    }
+
+    /**
+     * 检查下一个 token（当前 token 之后的那个）的类型
+     */
+    private boolean checkNext(TokenType type) {
+        if (current + 1 >= tokens.size()) {
+            return false;
+        }
+        return tokens.get(current + 1).type == type;
     }
 
     List<Stmt> parse() {
@@ -395,6 +407,12 @@ class Parser {
         if (match(NUMBER, STRING)) {
             return new Expr.Literal(previous().literal);
         }
+        
+        // 匿名函数表达式: fun (params) { body }
+        if (match(FUN)) {
+            return functionExpression();
+        }
+        
         if (match(IDENTIFIER)) {
             return new Expr.Variable(previous());
         }
@@ -404,6 +422,28 @@ class Parser {
             return new Expr.Grouping(expr);
         }
         throw error(peek(), "Expect expression.");
+    }
+
+    /**
+     * 解析匿名函数表达式
+     * 语法: fun (params) { body }
+     */
+    private Expr functionExpression() {
+        consume(LEFT_PAREN, "Expect '(' after 'fun'.");
+        List<Token> parameters = new ArrayList<>();
+        if (!check(RIGHT_PAREN)) {
+            do {
+                if (parameters.size() >= 255) {
+                    error(peek(), "Can't have more than 255 parameters.");
+                }
+                parameters.add(consume(IDENTIFIER, "Expect parameter name."));
+            } while (match(COMMA));
+        }
+        consume(RIGHT_PAREN, "Expect ')' after parameters.");
+        
+        consume(LEFT_BRACE, "Expect '{' before function body.");
+        List<Stmt> body = block();
+        return new Expr.Function(parameters, body);
     }
 
     private Expr finishCall(Expr callee) {

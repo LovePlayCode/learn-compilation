@@ -228,6 +228,26 @@ class AstTreePrinter implements Expr.Visitor<String>, Stmt.Visitor<String> {
     }
 
     @Override
+    public String visitFunctionExpr(Expr.Function expr) {
+        StringBuilder builder = new StringBuilder();
+        builder.append("Lambda(");
+        for (int i = 0; i < expr.params.size(); i++) {
+            if (i > 0) {
+                builder.append(", ");
+            }
+            builder.append(expr.params.get(i).lexeme);
+        }
+        builder.append(")\n");
+        
+        List<Stmt> body = expr.body;
+        for (int i = 0; i < body.size(); i++) {
+            boolean isLast = (i == body.size() - 1);
+            builder.append(printStmt(body.get(i), currentPrefix, isLast));
+        }
+        return builder.toString();
+    }
+
+    @Override
     public String visitGetExpr(Expr.Get expr) {
         StringBuilder builder = new StringBuilder();
         builder.append("Get: ").append(expr.name.lexeme).append("\n");

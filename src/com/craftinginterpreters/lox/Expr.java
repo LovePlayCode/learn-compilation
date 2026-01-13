@@ -26,6 +26,8 @@ abstract class Expr {
 
     R visitCallExpr(Call expr);
 
+    R visitFunctionExpr(Function expr);
+
     R visitGetExpr(Get expr);
 
     R visitGroupingExpr(Grouping expr);
@@ -119,6 +121,30 @@ abstract class Expr {
     final Expr callee;
     final Token paren;
     final List<Expr> arguments;
+  }
+
+  /**
+   * 匿名函数表达式（Lambda）
+   * 
+   * 表示匿名函数定义，如: fun (a, b) { return a + b; }
+   * 可以作为参数传递或立即调用
+   * 
+   * @field params 参数列表
+   * @field body   函数体语句列表
+   */
+  static class Function extends Expr {
+    Function(List<Token> params, List<Stmt> body) {
+      this.params = params;
+      this.body = body;
+    }
+
+    @Override
+    <R> R accept(Visitor<R> visitor) {
+      return visitor.visitFunctionExpr(this);
+    }
+
+    final List<Token> params;
+    final List<Stmt> body;
   }
 
   /**

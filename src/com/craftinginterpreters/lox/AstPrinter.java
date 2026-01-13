@@ -23,6 +23,11 @@ class AstPrinter implements Expr.Visitor<String> {
     }
 
     @Override
+    public String visitFunctionExpr(Expr.Function expr) {
+        return "<lambda>";
+    }
+
+    @Override
     public String visitGetExpr(Expr.Get expr) {
         return "";
     }
