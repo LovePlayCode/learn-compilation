@@ -19,6 +19,23 @@ class Environment {
         values.put(name, value);
     }
 
+    void assignAt(int distance, Token name, Object value) {
+        ancestor(distance).values.put(name.lexeme, value);
+    }
+
+    Environment ancestor(int distance) {
+        Environment environment = this;
+        for (int i = 0; i < distance; i++) {
+            environment = environment.enclosing;
+        }
+
+        return environment;
+    }
+
+    Object getAt(int distance, String name) {
+        return ancestor(distance).values.get(name);
+    }
+
     /**
      * 赋值与定义的主要区别在于，赋值操作不允许创建新变量，如果环境的变量映射中不存在变量值，而使用了这个变量，就是一个运行时错误
      * 

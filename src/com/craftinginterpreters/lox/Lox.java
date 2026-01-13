@@ -113,13 +113,15 @@ public class Lox {
         List<Token> tokens = scanner.scanTokens();
         Parser parser = new Parser(tokens);
         List<Stmt> statements = parser.parse();
-        
+
         // 打印 AST 语法树
         System.out.println(new AstTreePrinter().print(statements));
-        
+
         // Stop if there was a syntax error.
         if (hadError)
             return;
+        Resolver resolver = new Resolver(interpreter);
+        resolver.resolve(statements);
         interpreter.interpret(statements);
 
         // System.out.println(new AstPrinter().print(expression));
