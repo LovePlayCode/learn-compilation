@@ -49,6 +49,14 @@ public class Parser {
         return false;
     }
 
+    private Expr assignment() {
+
+    }
+
+    private Expr expression() {
+        return assignment();
+    }
+
     public VarDeclarator VariableDeclaration() {
         var name = consume(TokenType.IDENTIFIER, "不是变量声明");
         Expr initializer = null;
