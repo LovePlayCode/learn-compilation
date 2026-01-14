@@ -50,6 +50,12 @@ abstract class Stmt {
       this.methods = methods;
     }
 
+    Class(Token name, List<Stmt.Function> methods) {
+      this.name = name;
+      this.methods = methods;
+      this.superclass = null;
+    }
+
     @Override
     <R> R accept(Visitor<R> visitor) {
       return visitor.visitClassStmt(this);

@@ -164,8 +164,24 @@ class Parser {
         return new Stmt.Function(name, parameters, body);
     }
 
+    private Stmt classDeclaration() {
+        Token name = consume(IDENTIFIER, "Expect class name.");
+        consume(LEFT_BRACE, "Expect '{' before class body.");
+
+        List<Stmt.Function> methods = new ArrayList<>();
+        while (!check(RIGHT_BRACE) && !isAtEnd()) {
+            methods.add(function("method"));
+        }
+
+        consume(RIGHT_BRACE, "Expect '}' after class body.");
+
+        return new Stmt.Class(name, methods);
+    }
+
     private Stmt declaration() {
         try {
+            if (match(CLASS))
+                return classDeclaration();
             if (check(FUN)) {
                 advance(); // 消费 fun
                 return function("function");
@@ -407,12 +423,12 @@ class Parser {
         if (match(NUMBER, STRING)) {
             return new Expr.Literal(previous().literal);
         }
-        
+
         // 匿名函数表达式: fun (params) { body }
         if (match(FUN)) {
             return functionExpression();
         }
-        
+
         if (match(IDENTIFIER)) {
             return new Expr.Variable(previous());
         }
@@ -440,7 +456,7 @@ class Parser {
             } while (match(COMMA));
         }
         consume(RIGHT_PAREN, "Expect ')' after parameters.");
-        
+
         consume(LEFT_BRACE, "Expect '{' before function body.");
         List<Stmt> body = block();
         return new Expr.Function(parameters, body);

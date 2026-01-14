@@ -50,7 +50,7 @@ public class Parser {
     }
 
     private Expr assignment() {
-
+        return null;
     }
 
     private Expr expression() {
