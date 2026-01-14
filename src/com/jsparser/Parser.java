@@ -3,11 +3,12 @@ package com.jsparser;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.craftinginterpreters.lox.Lox;
-
 public class Parser {
     private final List<Token> tokens;
     private int current = 0;
+
+    private static class ParseError extends RuntimeException {
+    }
 
     Parser(List<Token> tokens) {
         this.tokens = tokens;
@@ -48,8 +49,30 @@ public class Parser {
         return false;
     }
 
+    public VarDeclarator VariableDeclaration() {
+        var name = consume(TokenType.IDENTIFIER, "不是变量声明");
+        Expr initializer = null;
+        if (match(TokenType.EQUAL)) {
+            initializer = expression();
+        }
+        return new VarDeclarator(name, initializer);
+    }
+
+    public Stmt VariableDeclarationList() {
+        var declarations = new ArrayList<VarDeclarator>();
+
+        declarations.add(VariableDeclaration());
+        while (match(TokenType.COMMA)) {
+
+            declarations.add(VariableDeclaration());
+        }
+        return new Stmt.Var(declarations);
+    }
+
     public Stmt VariableStatement() {
-        return null;
+        Stmt stmt = VariableDeclarationList();
+        consume(TokenType.SEMICOLON, "Expect ';' after variable declaration.");
+        return stmt;
     }
 
     private ParseError error(Token token, String message) {
@@ -68,6 +91,7 @@ public class Parser {
         if (match(TokenType.VAR)) {
             return VariableStatement();
         }
+        return null;
     }
 
     public List<Stmt> parse() {

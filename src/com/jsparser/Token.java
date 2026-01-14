@@ -6,19 +6,19 @@ package com.jsparser;
  */
 public class Token {
     // Token 类型
-    private final TokenType type;
+    public final TokenType type;
 
     // 词素：源代码中的原始文本
-    private final String lexeme;
+    public final String lexeme;
 
     // 字面量值：对 NUMBER 和 STRING 类型有意义
-    private final Object literal;
+    public final Object literal;
 
     // 行号
-    private final int line;
+    public final int line;
 
     // 列号
-    private final int column;
+    public final int column;
 
     /**
      * 构造一个 Token
