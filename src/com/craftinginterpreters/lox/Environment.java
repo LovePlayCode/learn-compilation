@@ -47,7 +47,8 @@ class Environment {
             values.put(name.lexeme, value);
             return;
         }
-        // 新增部分开始
+
+        // 按照原型链进行寻找，寻找闭包
         if (enclosing != null) {
             enclosing.assign(name, value);
             return;
@@ -56,7 +57,6 @@ class Environment {
                 "Undefined variable '" + name.lexeme + "'.");
     }
 
-    // 新增部分开始
     Object get(Token name) {
         if (values.containsKey(name.lexeme)) {
             return values.get(name.lexeme);

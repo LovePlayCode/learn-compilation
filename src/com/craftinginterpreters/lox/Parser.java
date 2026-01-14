@@ -337,6 +337,11 @@ class Parser {
             if (expr instanceof Expr.Variable) {
                 Token name = ((Expr.Variable) expr).name;
                 return new Expr.Assign(name, value);
+                // 当匹配到=后，如果expr 是 Get，则返回一个 Set 表达式，否则抛出异常
+            } else if (expr instanceof Expr.Get) {
+                Expr.Get get = (Expr.Get) expr;
+                return new Expr.Set(get.object, get.name, value);
+                // 新增部分结束
             }
 
             error(equals, "Invalid assignment target.");
@@ -428,6 +433,8 @@ class Parser {
         if (match(FUN)) {
             return functionExpression();
         }
+        if (match(THIS))
+            return new Expr.This(previous());
 
         if (match(IDENTIFIER)) {
             return new Expr.Variable(previous());
@@ -485,6 +492,12 @@ class Parser {
         while (true) {
             if (match(LEFT_PAREN)) {
                 expr = finishCall(expr);
+                // 解析 Get 表达式
+            } else if (match(DOT)) {
+                Token name = consume(IDENTIFIER,
+                        "Expect property name after '.'.");
+                expr = new Expr.Get(expr, name);
+
             } else {
                 break;
             }
