@@ -90,9 +90,15 @@ class AstTreePrinter implements Expr.Visitor<String>, Stmt.Visitor<String> {
         StringBuilder builder = new StringBuilder();
         builder.append("Class: ").append(stmt.name.lexeme).append("\n");
         
-        if (stmt.superclass != null) {
-            builder.append(currentPrefix).append(BRANCH).append("superclass: ")
-                   .append(stmt.superclass.name.lexeme).append("\n");
+        // 支持多继承
+        if (!stmt.superclasses.isEmpty()) {
+            StringBuilder superNames = new StringBuilder();
+            for (int i = 0; i < stmt.superclasses.size(); i++) {
+                if (i > 0) superNames.append(", ");
+                superNames.append(stmt.superclasses.get(i).name.lexeme);
+            }
+            builder.append(currentPrefix).append(BRANCH).append("extends: ")
+                   .append(superNames).append("\n");
         }
         
         List<Stmt.Function> methods = stmt.methods;

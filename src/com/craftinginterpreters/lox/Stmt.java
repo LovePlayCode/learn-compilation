@@ -43,17 +43,22 @@ abstract class Stmt {
   // > stmt-class
   static class Class extends Stmt {
     Class(Token name,
-        Expr.Variable superclass,
+        List<Expr.Variable> superclasses,
         List<Stmt.Function> methods) {
       this.name = name;
-      this.superclass = superclass;
+      this.superclasses = superclasses;
       this.methods = methods;
     }
 
     Class(Token name, List<Stmt.Function> methods) {
       this.name = name;
       this.methods = methods;
-      this.superclass = null;
+      this.superclasses = new java.util.ArrayList<>();
+    }
+
+    // 兼容旧代码的便捷方法
+    Expr.Variable superclass() {
+      return superclasses.isEmpty() ? null : superclasses.get(0);
     }
 
     @Override
@@ -62,7 +67,7 @@ abstract class Stmt {
     }
 
     final Token name;
-    final Expr.Variable superclass;
+    final List<Expr.Variable> superclasses;  // 支持多继承
     final List<Stmt.Function> methods;
   }
 

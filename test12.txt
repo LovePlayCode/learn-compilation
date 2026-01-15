@@ -1,14 +1,14 @@
-class Doughnut {
-  cook() {
-    print "Fry until golden brown.";
-  }
+class Brid {
+    fly(){
+        print this;
+        print "fly";
+    }
 }
 
-class BostonCream < Doughnut {
-  cook() {
-    super.cook();
-    print "Spread butter on top.";
-  }
+class Animal < Brid {
+    eat(){
+        super.fly();
+        print "eat";
+    }
 }
-class C < BostonCream {}
-C().cook();
+Animal().eat();

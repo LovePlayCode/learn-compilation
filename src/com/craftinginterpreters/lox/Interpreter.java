@@ -298,11 +298,13 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     @Override
     public Object visitSuperExpr(Expr.Super expr) {
         int distance = locals.get(expr);
-        LoxClass superclass = (LoxClass) environment.getAt(
+        // 获取当前类（而不是单个父类）
+        LoxClass currentClass = (LoxClass) environment.getAt(
                 distance, "super");
         LoxInstance object = (LoxInstance) environment.getAt(
                 distance - 1, "this");
-        LoxFunction method = superclass.findMethod(expr.method.lexeme);
+        // 在所有父类中查找方法
+        LoxFunction method = currentClass.findMethodInSuperclasses(expr.method.lexeme);
         // 绑定的是实例的 this，如果有 class A class B B < A ,那么 this 是B
         if (method == null) {
             throw new RuntimeError(expr.method,
@@ -350,30 +352,42 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
     @Override
     public Void visitClassStmt(Class stmt) {
-        Object superclass = null;
-        if (stmt.superclass != null) {
-            superclass = evaluate(stmt.superclass);
+        // 解析所有父类
+        List<LoxClass> superclasses = new ArrayList<>();
+        for (Expr.Variable superclassExpr : stmt.superclasses) {
+            Object superclass = evaluate(superclassExpr);
             if (!(superclass instanceof LoxClass)) {
-                throw new RuntimeError(stmt.superclass.name,
+                throw new RuntimeError(superclassExpr.name,
                         "Superclass must be a class.");
             }
+            superclasses.add((LoxClass) superclass);
         }
+
         environment.define(stmt.name.lexeme, null);
 
-        if (stmt.superclass != null) {
+        // 如果有父类，创建新环境（稍后绑定 super）
+        if (!stmt.superclasses.isEmpty()) {
             environment = new Environment(environment);
-            environment.define("super", superclass);
         }
+
         Map<String, LoxFunction> methods = new HashMap<>();
+        LoxClass klass = new LoxClass(stmt.name.lexeme, superclasses, methods);
+
+        // 绑定 super 为当前类，这样 super.method() 可以在所有父类中查找
+        if (!stmt.superclasses.isEmpty()) {
+            environment.define("super", klass);
+        }
+
+        // 在绑定 super 后再创建方法，这样方法闭包能捕获到 super
         for (Stmt.Function method : stmt.methods) {
             LoxFunction function = new LoxFunction(method, environment, method.name.lexeme.equals("init"));
             methods.put(method.name.lexeme, function);
         }
 
-        LoxClass klass = new LoxClass(stmt.name.lexeme, (LoxClass) superclass, methods);
-        if (superclass != null) {
+        if (!stmt.superclasses.isEmpty()) {
             environment = environment.enclosing;
         }
+
         environment.assign(stmt.name, klass);
         return null;
     }

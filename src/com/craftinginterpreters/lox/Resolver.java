@@ -184,22 +184,27 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
         currentClass = ClassType.CLASS;
         declare(stmt.name);
         define(stmt.name);
-        // 添加判断，如果类名和父类名相同，则报错
-        if (stmt.superclass != null &&
-                stmt.name.lexeme.equals(stmt.superclass.name.lexeme)) {
-            Lox.error(stmt.superclass.name,
-                    "A class can't inherit from itself.");
-        }
-        if (stmt.superclass != null) {
-            currentClass = ClassType.SUBCLASS;
 
-            resolve(stmt.superclass);
+        // 检查所有父类：不能继承自己
+        for (Expr.Variable superclass : stmt.superclasses) {
+            if (stmt.name.lexeme.equals(superclass.name.lexeme)) {
+                Lox.error(superclass.name,
+                        "A class can't inherit from itself.");
+            }
         }
-        // 如果有超类，则开始一个新的作用域，并把super添加到作用域中
-        if (stmt.superclass != null) {
+
+        // 解析所有父类
+        for (Expr.Variable superclass : stmt.superclasses) {
+            currentClass = ClassType.SUBCLASS;
+            resolve(superclass);
+        }
+
+        // 如果有父类，则开始一个新的作用域，并把 super 添加到作用域中
+        if (!stmt.superclasses.isEmpty()) {
             beginScope();
             scopes.peek().put("super", true);
         }
+
         beginScope();
         scopes.peek().put("this", true);
 
@@ -211,7 +216,8 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
             resolveFunction(method, declaration);
         }
         endScope();
-        if (stmt.superclass != null)
+
+        if (!stmt.superclasses.isEmpty())
             endScope();
 
         currentClass = enclosingClass;

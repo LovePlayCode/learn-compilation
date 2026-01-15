@@ -1,0 +1,366 @@
+// ==========================================
+// Lox 多继承功能测试
+// ==========================================
+
+// ==========================================
+// 测试 1: 基本多继承
+// ==========================================
+print "=== Test 1: Basic Multiple Inheritance ===";
+
+class Animal {
+  eat() {
+    print "Animal: eating";
+  }
+  breathe() {
+    print "Animal: breathing";
+  }
+}
+
+class Flyable {
+  fly() {
+    print "this=="+this;
+    print "Flyable: flying in the sky";
+  }
+}
+
+class Swimmable {
+  swim() {
+    print "Swimmable: swimming in water";
+  }
+}
+
+// Bird 继承 Animal 和 Flyable
+class Bird < Animal, Flyable {
+  sing() {
+    super.fly();
+    print "Bird: singing a song";
+  }
+}
+
+var bird = Bird();
+bird.eat();     // 从 Animal 继承
+bird.breathe(); // 从 Animal 继承
+bird.fly();     // 从 Flyable 继承
+bird.sing();    // Bird 自己的方法
+
+// ==========================================
+// 测试 2: 三重继承
+// ==========================================
+print "";
+print "=== Test 2: Triple Inheritance ===";
+
+// Duck 同时继承三个类
+class Duck < Animal, Flyable, Swimmable {
+  quack() {
+    print "Duck: quack quack!";
+  }
+}
+
+var duck = Duck();
+duck.eat();     // 从 Animal 继承
+duck.fly();     // 从 Flyable 继承
+duck.swim();    // 从 Swimmable 继承
+duck.quack();   // Duck 自己的方法
+
+// ==========================================
+// 测试 3: 方法重写
+// ==========================================
+print "";
+print "=== Test 3: Method Override ===";
+
+class Vehicle {
+  move() {
+    print "Vehicle: moving";
+  }
+  stop() {
+    print "Vehicle: stopped";
+  }
+}
+
+class Electric {
+  charge() {
+    print "Electric: charging battery";
+  }
+  move() {
+    print "Electric: moving silently";
+  }
+}
+
+// Car 重写 move 方法
+class Car < Vehicle, Electric {
+  move() {
+    print "Car: driving on road";
+  }
+  honk() {
+    print "Car: beep beep!";
+  }
+}
+
+var car = Car();
+car.move();   // 应该调用 Car 自己的 move，不是父类的
+car.stop();   // 从 Vehicle 继承
+car.charge(); // 从 Electric 继承
+car.honk();   // Car 自己的方法
+
+// ==========================================
+// 测试 4: 继承优先级 (菱形问题)
+// ==========================================
+print "";
+print "=== Test 4: Inheritance Priority (Diamond Problem) ===";
+
+class A {
+  greet() {
+    print "A: Hello from A";
+  }
+}
+
+class B {
+  greet() {
+    print "B: Hello from B";
+  }
+}
+
+class C {
+  greet() {
+    print "C: Hello from C";
+  }
+}
+
+// D 继承 A, B, C，都有 greet 方法
+// 应该使用第一个父类 A 的方法
+class D < A, B, C {
+}
+
+var d = D();
+d.greet(); // 应该输出 "A: Hello from A" (第一个父类优先)
+
+// ==========================================
+// 测试 5: 带 this 的方法
+// ==========================================
+print "";
+print "=== Test 5: Methods with 'this' ===";
+
+class Named {
+  sayName() {
+    print "Named: My name is " + this.name;
+  }
+}
+
+class Aged {
+  sayAge() {
+    print "Aged: I am " + this.age + " years old";
+  }
+}
+
+class Person < Named, Aged {
+  init(name, age) {
+    this.name = name;
+    this.age = age;
+  }
+  introduce() {
+    print "Person: Let me introduce myself:";
+    this.sayName();
+    this.sayAge();
+  }
+}
+
+var person = Person("Alice", 25);
+person.introduce();
+
+// ==========================================
+// 测试 6: 单继承仍然正常工作
+// ==========================================
+print "";
+print "=== Test 6: Single Inheritance Still Works ===";
+
+class Base {
+  baseMethod() {
+    print "Base: base method called";
+  }
+}
+
+class Derived < Base {
+  derivedMethod() {
+    print "Derived: derived method called";
+  }
+}
+
+var derived = Derived();
+derived.baseMethod();
+derived.derivedMethod();
+
+// ==========================================
+// 测试 7: 无继承仍然正常工作
+// ==========================================
+print "";
+print "=== Test 7: No Inheritance Still Works ===";
+
+class Simple {
+  doSomething() {
+    print "Simple: doing something";
+  }
+}
+
+var simple = Simple();
+simple.doSomething();
+
+// ==========================================
+// 测试 8: 链式方法调用
+// ==========================================
+print "";
+print "=== Test 8: Chained Method Calls ===";
+
+class Printable {
+  printInfo() {
+    print "Printable: printing info";
+    return this;
+  }
+}
+
+class Loggable {
+  log() {
+    print "Loggable: logging";
+    return this;
+  }
+}
+
+class Reporter < Printable, Loggable {
+  report() {
+    print "Reporter: reporting";
+    return this;
+  }
+}
+
+var reporter = Reporter();
+reporter.printInfo().log().report();
+
+// ==========================================
+// 测试 9: super 调用 - 调用第一个父类的方法
+// ==========================================
+print "";
+print "=== Test 9: super Calls First Parent ===";
+
+class Parent1 {
+  greet() {
+    print "Parent1: Hello!";
+  }
+}
+
+class Parent2 {
+  greet() {
+    print "Parent2: Hi there!";
+  }
+}
+
+class Child < Parent1, Parent2 {
+  greet() {
+    print "Child: Before super call";
+    super.greet();  // 调用 Parent1 的 greet (第一个父类优先)
+    print "Child: After super call";
+  }
+}
+
+var child = Child();
+child.greet();
+
+// ==========================================
+// 测试 10: super 调用不同父类的不同方法
+// ==========================================
+print "";
+print "=== Test 10: super Calls Different Methods from Different Parents ===";
+
+class Speakable {
+  speak() {
+    print "Speakable: Speaking...";
+  }
+}
+
+class Walkable {
+  walk() {
+    print "Walkable: Walking...";
+  }
+}
+
+class Runnable {
+  run() {
+    print "Runnable: Running...";
+  }
+}
+
+class Human < Speakable, Walkable, Runnable {
+  doAll() {
+    print "Human: I can do many things:";
+    super.speak();  // 从 Speakable 继承
+    super.walk();   // 从 Walkable 继承
+    super.run();    // 从 Runnable 继承
+  }
+}
+
+var human = Human();
+human.doAll();
+
+// ==========================================
+// 测试 11: super 调用并重写方法
+// ==========================================
+print "";
+print "=== Test 11: super Call with Override ===";
+
+class Logger {
+  log(msg) {
+    print "[LOG] " + msg;
+  }
+}
+
+class Formatter {
+  format(msg) {
+    return ">> " + msg + " <<";
+  }
+}
+
+class App < Logger, Formatter {
+  log(msg) {
+    // 调用父类的 format，然后调用父类的 log
+    var formatted = super.format(msg);
+    super.log(formatted);
+  }
+}
+
+var app = App();
+app.log("Hello World");
+
+// ==========================================
+// 测试 12: 深层继承链中的 super
+// ==========================================
+print "";
+print "=== Test 12: super in Deep Inheritance Chain ===";
+
+class GrandParent {
+  sayHello() {
+    print "GrandParent: Hello from grandparent";
+  }
+}
+
+class ParentA < GrandParent {
+  sayHello() {
+    print "ParentA: Before grandparent";
+    super.sayHello();
+    print "ParentA: After grandparent";
+  }
+}
+
+class ChildA < ParentA {
+  sayHello() {
+    print "ChildA: Before parent";
+    super.sayHello();
+    print "ChildA: After parent";
+  }
+}
+
+var childA = ChildA();
+childA.sayHello();
+
+// ==========================================
+// 测试完成
+// ==========================================
+print "";
+print "=== All Tests Completed! ===";
