@@ -85,10 +85,7 @@ public class Lox {
         if (hadError)
             return;
 
-        // System.out.println(new AstPrinter().print(expression));
-        // For now, just print the tokens.
-        // for (Token token : tokens) {
-        // System.out.println(token);
-        // }
+        // 打印 AST 树形结构
+        System.out.println(new AstTreePrinter().print(statements));
     }
 }

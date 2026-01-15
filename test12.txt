@@ -1,5 +1,8 @@
 class Brid {
     fly(){
+        var num = 100;
+
+        print num;
         print this;
         print "fly";
     }

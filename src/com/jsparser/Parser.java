@@ -49,12 +49,47 @@ public class Parser {
         return false;
     }
 
+    private Expr primary() {
+        if (match(TokenType.FALSE))
+            return new Expr.Literal(false);
+        if (match(TokenType.TRUE))
+            return new Expr.Literal(true);
+        if (match(TokenType.NULL))
+            return new Expr.Literal(null);
+
+        if (match(TokenType.NUMBER, TokenType.STRING)) {
+            return new Expr.Literal(previous().literal);
+        }
+
+        if (match(TokenType.IDENTIFIER)) {
+            return new Expr.Identifier(previous());
+        }
+        if (match(TokenType.LEFT_PAREN)) {
+            Expr expr = AssignmentExpression();
+            consume(TokenType.RIGHT_PAREN, "Expect ')' after expression.");
+            return new Expr.Grouping(expr);
+        }
+        throw error(peek(), "Expect expression.");
+    }
+
     private Expr BitwiseORExpression() {
-        return null;
+        Expr expr = primary();
+        return expr;
+    }
+
+    private Expr call() {
+        Expr expr = primary();
+        return expr;
     }
 
     private Expr unary() {
-        return null;
+        if (match(TokenType.BANG, TokenType.MINUS)) {
+            Token operator = previous();
+            Expr right = unary();
+            return new Expr.Unary(operator, right, true);
+        }
+
+        return call();
     }
 
     private Expr factor() {
@@ -65,7 +100,7 @@ public class Parser {
             expr = new Expr.Binary(expr, operator, right);
 
         }
-        return null;
+        return expr;
     }
 
     private Expr term() {
@@ -89,8 +124,9 @@ public class Parser {
     }
 
     private Expr equality() {
+        Expr expr = comparison();
 
-        return null;
+        return expr;
     }
 
     private Expr LogicalANDExpression() {
@@ -100,7 +136,7 @@ public class Parser {
             var right = equality();
             expr = new Expr.Logical(expr, operator, right);
         }
-        return null;
+        return expr;
     }
 
     private Expr LogicalORExpression() {
@@ -114,13 +150,21 @@ public class Parser {
     }
 
     private Expr ConditionalExpression() {
-        LogicalORExpression();
-        return null;
+        var expr = LogicalORExpression();
+        if (match(TokenType.EQUAL)) {
+            Token equals = previous();
+            Expr value = ConditionalExpression();
+            if (expr instanceof Expr.Identifier) {
+
+                return new Expr.Assign(expr, equals, value);
+            }
+        }
+        return expr;
     }
 
     private Expr AssignmentExpression() {
-        ConditionalExpression();
-        return null;
+        var expr = ConditionalExpression();
+        return expr;
     }
 
     public VarDeclarator VariableDeclaration() {
@@ -145,7 +189,6 @@ public class Parser {
 
     public Stmt VariableStatement() {
         Stmt stmt = VariableDeclarationList();
-        System.out.println("stmt::" + stmt);
         consume(TokenType.SEMICOLON, "Expect ';' after variable declaration.");
         return stmt;
     }
