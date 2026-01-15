@@ -297,7 +297,18 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
     @Override
     public Object visitSuperExpr(Expr.Super expr) {
-        return null;
+        int distance = locals.get(expr);
+        LoxClass superclass = (LoxClass) environment.getAt(
+                distance, "super");
+        LoxInstance object = (LoxInstance) environment.getAt(
+                distance - 1, "this");
+        LoxFunction method = superclass.findMethod(expr.method.lexeme);
+        // 绑定的是实例的 this，如果有 class A class B B < A ,那么 this 是B
+        if (method == null) {
+            throw new RuntimeError(expr.method,
+                    "Undefined property '" + expr.method.lexeme + "'.");
+        }
+        return method.bind(object);
     }
 
     @Override
@@ -348,6 +359,11 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
             }
         }
         environment.define(stmt.name.lexeme, null);
+
+        if (stmt.superclass != null) {
+            environment = new Environment(environment);
+            environment.define("super", superclass);
+        }
         Map<String, LoxFunction> methods = new HashMap<>();
         for (Stmt.Function method : stmt.methods) {
             LoxFunction function = new LoxFunction(method, environment, method.name.lexeme.equals("init"));
@@ -355,6 +371,9 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         }
 
         LoxClass klass = new LoxClass(stmt.name.lexeme, (LoxClass) superclass, methods);
+        if (superclass != null) {
+            environment = environment.enclosing;
+        }
         environment.assign(stmt.name, klass);
         return null;
     }
