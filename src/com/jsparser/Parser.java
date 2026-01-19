@@ -1,5 +1,6 @@
 package com.jsparser;
 
+import java.lang.Thread.State;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,11 +22,13 @@ public class Parser {
     private Token peek() {
         return tokens.get(current);
     }
+
     private void synchronize() {
         advance();
 
         while (!isAtEnd()) {
-            if (previous().type == TokenType.SEMICOLON) return;
+            if (previous().type == TokenType.SEMICOLON)
+                return;
 
             switch (peek().type) {
 
@@ -41,6 +44,7 @@ public class Parser {
             advance();
         }
     }
+
     private boolean check(TokenType type) {
         if (isAtEnd())
             return false;
@@ -153,7 +157,13 @@ public class Parser {
     }
 
     private Expr Expression() {
-        return null;
+        Expr expr = AssignmentExpression();
+        while (match(TokenType.COMMA)) {
+            Token operator = previous();
+            Expr right = AssignmentExpression();
+            expr = new Expr.Binary(expr, operator, right);
+        }
+        return expr;
     }
 
     private List<Expr> Arguments() {
@@ -377,18 +387,53 @@ public class Parser {
         return null;
     }
 
+    private Stmt ExpressionStatement() {
+        var expr = Expression();
+        consume(TokenType.SEMICOLON, "语句必须以分号结尾");
+        return new Stmt.Expression(expr);
+    }
+
+    private Stmt IfStatement() {
+        consume(TokenType.LEFT_PAREN, "期望一个(在 if 后面.");
+        var condition = Expression();
+        consume(TokenType.RIGHT_PAREN, "期望一个)在 if 后面.");
+        var thenBranch = Statement();
+        Stmt elseBranch = null;
+        if (match(TokenType.ELSE)) {
+            elseBranch = Statement();
+        }
+        return new Stmt.If(condition, thenBranch, elseBranch);
+    }
+
+    private Stmt WhileStatement() {
+        consume(TokenType.LEFT_PAREN, "期望一个(在 while 后面.");
+        var condition = Expression();
+        consume(TokenType.RIGHT_PAREN, "期望一个)在 while 后面.");
+        var body = Statement();
+        return new Stmt.While(condition, body);
+    }
+
     private Stmt Statement() {
         if (match(TokenType.VAR)) {
             return VariableStatement();
         }
-        return null;
+        if (match(TokenType.SEMICOLON)) {
+            return new Stmt.Empty(previous());
+        }
+        if (match(TokenType.IF)) {
+            return IfStatement();
+        }
+        if (match(TokenType.WHILE)) {
+            return WhileStatement();
+        }
+        return ExpressionStatement();
     }
 
     private Stmt SourceElements() {
         return Statement();
     }
 
-    private List<Stmt> Program(){
+    private List<Stmt> Program() {
         var statements = new ArrayList<Stmt>();
         while (!isAtEnd()) {
             statements.add(SourceElements());

@@ -1,5 +1,7 @@
 package com.jsparser;
 
+import java.util.List;
+
 import com.jsparser.Expr.ArrayLiteral;
 import com.jsparser.Expr.Assign;
 import com.jsparser.Expr.Binary;
@@ -21,8 +23,26 @@ import com.jsparser.Expr.This;
 import com.jsparser.Expr.Typeof;
 import com.jsparser.Expr.Unary;
 import com.jsparser.Expr.Void;
+import com.jsparser.Stmt.Block;
+import com.jsparser.Stmt.Break;
+import com.jsparser.Stmt.Continue;
+import com.jsparser.Stmt.Debugger;
+import com.jsparser.Stmt.DoWhile;
+import com.jsparser.Stmt.Empty;
+import com.jsparser.Stmt.Expression;
+import com.jsparser.Stmt.For;
+import com.jsparser.Stmt.ForIn;
+import com.jsparser.Stmt.If;
+import com.jsparser.Stmt.Labeled;
+import com.jsparser.Stmt.Return;
+import com.jsparser.Stmt.Switch;
+import com.jsparser.Stmt.Throw;
+import com.jsparser.Stmt.Try;
+import com.jsparser.Stmt.Var;
+import com.jsparser.Stmt.While;
+import com.jsparser.Stmt.With;
 
-public class Interpreter implements Expr.Visitor<Object> {
+public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
     @Override
     public Object visitArrayLiteralExpr(ArrayLiteral expr) {
@@ -51,10 +71,15 @@ public class Interpreter implements Expr.Visitor<Object> {
         return object.toString();
     }
 
-    void interpret(Expr expression) {
+    private void execute(Stmt stmt) {
+        stmt.accept(this);
+    }
+
+    void interpret(List<Stmt> statements) {
         try {
-            Object value = evaluate(expression);
-            System.out.println(stringify(value));
+            for (Stmt statement : statements) {
+                execute(statement);
+            }
         } catch (RuntimeError error) {
             Lox.runtimeError(error);
         }
@@ -274,6 +299,120 @@ public class Interpreter implements Expr.Visitor<Object> {
     public Object visitVoidExpr(Void expr) {
         // TODO Auto-generated method stub
         return null;
+    }
+
+    @Override
+    public Void visitExpressionStmt(Expression stmt) {
+        evaluate(stmt.expression);
+        return null;
+    }
+
+    @Override
+    public Void visitBlockStmt(Block stmt) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'visitBlockStmt'");
+    }
+
+    @Override
+    public Void visitEmptyStmt(Empty stmt) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'visitEmptyStmt'");
+    }
+
+    @Override
+    public Void visitVarStmt(Var stmt) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'visitVarStmt'");
+    }
+
+    @Override
+    public Void visitFunctionStmt(com.jsparser.Stmt.Function stmt) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'visitFunctionStmt'");
+    }
+
+    @Override
+    public Void visitIfStmt(If stmt) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'visitIfStmt'");
+    }
+
+    @Override
+    public Void visitWhileStmt(While stmt) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'visitWhileStmt'");
+    }
+
+    @Override
+    public Void visitDoWhileStmt(DoWhile stmt) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'visitDoWhileStmt'");
+    }
+
+    @Override
+    public Void visitForStmt(For stmt) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'visitForStmt'");
+    }
+
+    @Override
+    public Void visitForInStmt(ForIn stmt) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'visitForInStmt'");
+    }
+
+    @Override
+    public Void visitSwitchStmt(Switch stmt) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'visitSwitchStmt'");
+    }
+
+    @Override
+    public Void visitBreakStmt(Break stmt) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'visitBreakStmt'");
+    }
+
+    @Override
+    public Void visitContinueStmt(Continue stmt) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'visitContinueStmt'");
+    }
+
+    @Override
+    public Void visitReturnStmt(Return stmt) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'visitReturnStmt'");
+    }
+
+    @Override
+    public Void visitThrowStmt(Throw stmt) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'visitThrowStmt'");
+    }
+
+    @Override
+    public Void visitTryStmt(Try stmt) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'visitTryStmt'");
+    }
+
+    @Override
+    public Void visitWithStmt(With stmt) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'visitWithStmt'");
+    }
+
+    @Override
+    public Void visitLabeledStmt(Labeled stmt) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'visitLabeledStmt'");
+    }
+
+    @Override
+    public Void visitDebuggerStmt(Debugger stmt) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'visitDebuggerStmt'");
     }
 
 }
