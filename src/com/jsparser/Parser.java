@@ -2,6 +2,7 @@ package com.jsparser;
 
 import java.lang.Thread.State;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class Parser {
@@ -427,6 +428,54 @@ public class Parser {
         return new Stmt.Block(stmtList);
     }
 
+    private Stmt ForInit() {
+
+        if (match(TokenType.VAR)) {
+            return VariableDeclarationList();
+        }
+        return new Stmt.Expression(Expression());
+    }
+
+    /**
+     * 将 for 循环语句转换为 while 循环语句
+     * 
+     * @return
+     */
+    private Stmt ForStatement() {
+        consume(TokenType.LEFT_PAREN, "期望一个(在 for 后面.");
+        Stmt initializer;
+        if (match(TokenType.SEMICOLON)) {
+            initializer = null;
+        } else {
+            initializer = ForInit();
+        }
+
+        consume(TokenType.SEMICOLON, "期望一个;在 for 后面.");
+
+        Expr condition = null;
+        if (!check(TokenType.SEMICOLON)) {
+            condition = Expression();
+        }
+        consume(TokenType.SEMICOLON, "期望一个;在 for 后面.");
+        Expr update = null;
+        if (!check(TokenType.RIGHT_PAREN)) {
+            update = Expression();
+        }
+        consume(TokenType.RIGHT_PAREN, "期望一个)在 for 后面.");
+        Stmt body = Statement();
+        if (update != null) {
+            body = new Stmt.Block(Arrays.asList(body, new Stmt.Expression(update)));
+        }
+        if (condition == null) {
+            condition = new Expr.Literal(true);
+        }
+        body = new Stmt.While(condition, body);
+        if (initializer != null) {
+            body = new Stmt.Block(Arrays.asList(initializer, body));
+        }
+        return body;
+    }
+
     private Stmt Statement() {
         if (match(TokenType.VAR)) {
             return VariableStatement();
@@ -440,13 +489,41 @@ public class Parser {
         if (match(TokenType.WHILE)) {
             return WhileStatement();
         }
+        if (match(TokenType.FOR)) {
+            return ForStatement();
+        }
         if (match(TokenType.LEFT_PAREN)) {
             return Block();
         }
         return ExpressionStatement();
     }
 
+    private List<Token> FormalParameterList() {
+        List<Token> params = new ArrayList<>();
+        params.add(consume(TokenType.IDENTIFIER, "期望一个标识符在函数声明后面."));
+        while (match(TokenType.COMMA)) {
+            params.add(consume(TokenType.IDENTIFIER, "期望一个标识符在函数声明后面."));
+        }
+
+        return params;
+    }
+
+    private Stmt FunctionDeclaration() {
+        var name = consume(TokenType.IDENTIFIER, "期望一个标识符在函数声明后面.");
+        consume(TokenType.LEFT_PAREN, "期望一个(在函数声明后面.");
+        List<Token> params = new ArrayList<>();
+        if (match(TokenType.IDENTIFIER)) {
+            params = FormalParameterList();
+        }
+        consume(TokenType.RIGHT_PAREN, "期望一个)在函数声明后面.");
+        var body = Block();
+        return new Stmt.Function(name, params, body);
+    }
+
     private Stmt SourceElements() {
+        if (match(TokenType.FUNCTION)) {
+            return FunctionDeclaration();
+        }
         return Statement();
     }
 

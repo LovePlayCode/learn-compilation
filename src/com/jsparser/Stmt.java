@@ -10,30 +10,48 @@ import java.util.List;
 abstract class Stmt {
     /**
      * 访问者接口
+     * 
      * @param <R> 访问方法的返回类型
      */
     interface Visitor<R> {
         R visitExpressionStmt(Expression stmt);
+
         R visitBlockStmt(Block stmt);
+
         R visitEmptyStmt(Empty stmt);
+
         R visitVarStmt(Var stmt);
+
         R visitFunctionStmt(Function stmt);
+
         R visitIfStmt(If stmt);
+
         R visitWhileStmt(While stmt);
+
         R visitDoWhileStmt(DoWhile stmt);
+
         R visitForStmt(For stmt);
+
         R visitForInStmt(ForIn stmt);
+
         R visitSwitchStmt(Switch stmt);
+
         R visitBreakStmt(Break stmt);
+
         R visitContinueStmt(Continue stmt);
+
         R visitReturnStmt(Return stmt);
+
         R visitThrowStmt(Throw stmt);
+
         R visitTryStmt(Try stmt);
+
         R visitWithStmt(With stmt);
+
         R visitLabeledStmt(Labeled stmt);
+
         R visitDebuggerStmt(Debugger stmt);
     }
-
 
     /**
      * Expression stmt
@@ -103,7 +121,7 @@ abstract class Stmt {
      * Function stmt
      */
     static class Function extends Stmt {
-        Function(Token name, List<Token> params, List<Stmt> body) {
+        Function(Token name, List<Token> params, Stmt body) {
             this.name = name;
             this.params = params;
             this.body = body;
@@ -116,7 +134,7 @@ abstract class Stmt {
 
         final Token name;
         final List<Token> params;
-        final List<Stmt> body;
+        final Stmt body;
     }
 
     /**
@@ -381,8 +399,9 @@ abstract class Stmt {
 
     /**
      * 接受访问者
+     * 
      * @param visitor 访问者对象
-     * @param <R> 返回类型
+     * @param <R>     返回类型
      * @return 访问结果
      */
     abstract <R> R accept(Visitor<R> visitor);

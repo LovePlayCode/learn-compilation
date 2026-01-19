@@ -270,9 +270,18 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
      * 例: a && b, a || b, !flag && isReady
      */
     @Override
-    public Object visitLogicalExpr(Logical expr) {
-        // TODO Auto-generated method stub
-        return null;
+    public Object visitLogicalExpr(Expr.Logical expr) {
+        Object left = evaluate(expr.left);
+
+        if (expr.operator.type == TokenType.OR) {
+            if (isTruthy(left))
+                return left;
+        } else {
+            if (!isTruthy(left))
+                return left;
+        }
+
+        return evaluate(expr.right);
     }
 
     /**
@@ -453,8 +462,13 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
      */
     @Override
     public Void visitIfStmt(If stmt) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'visitIfStmt'");
+        if (isTruthy(evaluate(stmt.condition))) {
+            execute(stmt.consequent);
+        } else if (stmt.alternate != null) {
+            execute(stmt.alternate);
+        }
+
+        return null;
     }
 
     /**
@@ -462,9 +476,11 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
      * 例: while (i < 10) { i++; }
      */
     @Override
-    public Void visitWhileStmt(While stmt) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'visitWhileStmt'");
+    public Void visitWhileStmt(Stmt.While stmt) {
+        while (isTruthy(evaluate(stmt.condition))) {
+            execute(stmt.body);
+        }
+        return null;
     }
 
     /**
