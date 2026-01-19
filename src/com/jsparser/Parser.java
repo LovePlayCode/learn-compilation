@@ -206,13 +206,14 @@ public class Parser {
     }
 
     private Expr UnaryExpression() {
-        var expr = PostfixExpression();
-        if (match(TokenType.BANG, TokenType.MINUS, TokenType.PLUS, TokenType.TYPEOF)) {
-            var operator = previous();
-            var right = UnaryExpression();
-            expr = new Expr.Unary(operator, right, true);
+        // 先检查前缀运算符
+        if (match(TokenType.BANG, TokenType.PLUS_PLUS, TokenType.MINUS_MINUS, TokenType.MINUS, TokenType.PLUS,
+                TokenType.TYPEOF)) {
+            Token operator = previous();
+            Expr right = UnaryExpression();
+            return new Expr.Unary(operator, right, true);
         }
-        return expr;
+        return PostfixExpression();
     }
 
     private Expr MultiplicativeExpression() {
@@ -357,10 +358,21 @@ public class Parser {
         return null;
     }
 
+    private Stmt Statement() {
+        if (match(TokenType.VAR)) {
+            return VariableStatement();
+        }
+        return null;
+    }
+
+    private Stmt SourceElements() {
+        return Statement();
+    }
+
     public List<Stmt> parse() {
         var statements = new ArrayList<Stmt>();
         while (!isAtEnd()) {
-            statements.add(declaration());
+            statements.add(SourceElements());
         }
         return statements;
     }

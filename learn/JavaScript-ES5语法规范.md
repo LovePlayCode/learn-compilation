@@ -267,9 +267,10 @@ MultiplicativeExpression
 ```bnf
 UnaryExpression
     : PostfixExpression
-    | ('!' | '-' | '+' | 'typeof') UnaryExpression
+    | ('delete' | 'void' | 'typeof' | '++' | '--' | '+' | '-' | '~' | '!') UnaryExpression
     ;
 ```
+
 
 ### 后缀表达式
 
