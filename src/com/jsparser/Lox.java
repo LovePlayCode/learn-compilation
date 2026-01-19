@@ -11,6 +11,7 @@ import java.util.List;
 public class Lox {
     static boolean hadError = false;
     static boolean hadRuntimeError = false;
+    private static final Interpreter interpreter = new Interpreter();
 
     static void error(int line, String message) {
         report(line, "", message);
@@ -84,6 +85,7 @@ public class Lox {
         // Stop if there was a syntax error.
         if (hadError)
             return;
+//        interpreter.interpret(expression);
 
         // 打印 AST 树形结构
         System.out.println(new AstTreePrinter().print(statements));

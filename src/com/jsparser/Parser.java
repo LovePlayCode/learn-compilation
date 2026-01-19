@@ -21,7 +21,26 @@ public class Parser {
     private Token peek() {
         return tokens.get(current);
     }
+    private void synchronize() {
+        advance();
 
+        while (!isAtEnd()) {
+            if (previous().type == TokenType.SEMICOLON) return;
+
+            switch (peek().type) {
+
+                case TokenType.FUNCTION:
+                case TokenType.VAR:
+                case TokenType.FOR:
+                case TokenType.IF:
+                case TokenType.WHILE:
+                case TokenType.RETURN:
+                    return;
+            }
+
+            advance();
+        }
+    }
     private boolean check(TokenType type) {
         if (isAtEnd())
             return false;
@@ -369,11 +388,19 @@ public class Parser {
         return Statement();
     }
 
-    public List<Stmt> parse() {
+    private List<Stmt> Program(){
         var statements = new ArrayList<Stmt>();
         while (!isAtEnd()) {
             statements.add(SourceElements());
         }
         return statements;
+    }
+
+    public List<Stmt> parse() {
+        try {
+            return Program();
+        } catch (ParseError error) {
+            return null;
+        }
     }
 }
