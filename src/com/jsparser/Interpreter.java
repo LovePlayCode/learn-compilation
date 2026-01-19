@@ -43,13 +43,22 @@ import com.jsparser.Stmt.While;
 import com.jsparser.Stmt.With;
 
 public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
+    private Environment environment = new Environment();
 
+    /**
+     * 数组字面量表达式
+     * 例: [1, 2, 3] 或 [a, b + 1, "hello"]
+     */
     @Override
     public Object visitArrayLiteralExpr(ArrayLiteral expr) {
         // TODO Auto-generated method stub
         return null;
     }
 
+    /**
+     * 赋值表达式
+     * 例: x = 1, x += 2, obj.prop = value
+     */
     @Override
     public Object visitAssignExpr(Assign expr) {
         // TODO Auto-generated method stub
@@ -164,24 +173,40 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
     }
 
+    /**
+     * 函数调用表达式
+     * 例: foo(), obj.method(1, 2), console.log("hello")
+     */
     @Override
     public Object visitCallExpr(Call expr) {
         // TODO Auto-generated method stub
         return null;
     }
 
+    /**
+     * 条件（三元）表达式
+     * 例: a > b ? a : b, isValid ? "yes" : "no"
+     */
     @Override
     public Object visitConditionalExpr(Conditional expr) {
         // TODO Auto-generated method stub
         return null;
     }
 
+    /**
+     * delete 运算符表达式
+     * 例: delete obj.prop, delete arr[0]
+     */
     @Override
     public Object visitDeleteExpr(Delete expr) {
         // TODO Auto-generated method stub
         return null;
     }
 
+    /**
+     * 函数表达式（匿名函数/命名函数表达式）
+     * 例: function() { return 1; }, function add(a, b) { return a + b; }
+     */
     @Override
     public Object visitFunctionExpr(Function expr) {
         // TODO Auto-generated method stub
@@ -193,7 +218,8 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     }
 
     /**
-     * 计算括号表达式，递归子表达式求值即可。
+     * 分组（括号）表达式，递归子表达式求值即可
+     * 例: (a + b), (1 + 2) * 3
      */
     @Override
     public Object visitGroupingExpr(Grouping expr) {
@@ -201,66 +227,109 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         return evaluate(expr.expression);
     }
 
+    /**
+     * 标识符表达式，从环境中查找变量的值
+     * 例: x, myVar, console
+     */
     @Override
     public Object visitIdentifierExpr(Identifier expr) {
         // TODO Auto-generated method stub
         return null;
     }
 
+    /**
+     * in 运算符表达式，判断属性是否存在于对象中
+     * 例: "name" in obj, 0 in arr
+     */
     @Override
     public Object visitInExpr(In expr) {
         // TODO Auto-generated method stub
         return null;
     }
 
+    /**
+     * instanceof 运算符表达式，判断对象是否是某个类的实例
+     * 例: obj instanceof Array, err instanceof Error
+     */
     @Override
     public Object visitInstanceofExpr(Instanceof expr) {
         // TODO Auto-generated method stub
         return null;
     }
 
+    /**
+     * 字面量表达式，直接返回值
+     * 例: 42, "hello", true, false, null
+     */
     @Override
     public Object visitLiteralExpr(Literal expr) {
-        // TODO Auto-generated method stub
         return expr.value;
     }
 
+    /**
+     * 逻辑运算符表达式（短路求值）
+     * 例: a && b, a || b, !flag && isReady
+     */
     @Override
     public Object visitLogicalExpr(Logical expr) {
         // TODO Auto-generated method stub
         return null;
     }
 
+    /**
+     * 成员访问表达式
+     * 例: obj.prop（点号访问）, arr[0]（计算属性访问）
+     */
     @Override
     public Object visitMemberExpr(Member expr) {
         // TODO Auto-generated method stub
         return null;
     }
 
+    /**
+     * new 表达式，创建对象实例
+     * 例: new Date(), new Array(10), new Person("John")
+     */
     @Override
     public Object visitNewExpr(New expr) {
         // TODO Auto-generated method stub
         return null;
     }
 
+    /**
+     * 对象字面量表达式
+     * 例: {}, { name: "John", age: 30 }, { get x() { return 1; } }
+     */
     @Override
     public Object visitObjectLiteralExpr(ObjectLiteral expr) {
         // TODO Auto-generated method stub
         return null;
     }
 
+    /**
+     * 序列（逗号）表达式，依次求值并返回最后一个值
+     * 例: (a = 1, b = 2, a + b) 返回 3
+     */
     @Override
     public Object visitSequenceExpr(Sequence expr) {
         // TODO Auto-generated method stub
         return null;
     }
 
+    /**
+     * this 表达式，返回当前执行上下文的 this 值
+     * 例: this, this.name, this.method()
+     */
     @Override
     public Object visitThisExpr(This expr) {
         // TODO Auto-generated method stub
         return null;
     }
 
+    /**
+     * typeof 运算符表达式，返回操作数的类型字符串
+     * 例: typeof x 返回 "undefined"/"number"/"string"/"boolean"/"object"/"function"
+     */
     @Override
     public Object visitTypeofExpr(Typeof expr) {
         // TODO Auto-generated method stub
@@ -275,6 +344,11 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         return true;
     }
 
+    /**
+     * 一元运算符表达式
+     * 前缀: !a, -a, +a, ++a, --a, typeof a
+     * 后缀: a++, a--
+     */
     @Override
     public Object visitUnaryExpr(Unary expr) {
         // TODO: 有前缀和后缀的区别，需要进行完善
@@ -295,120 +369,205 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
     }
 
+    /**
+     * void 运算符表达式，求值后返回 undefined
+     * 例: void 0, void(expression)
+     */
     @Override
     public Object visitVoidExpr(Void expr) {
         // TODO Auto-generated method stub
         return null;
     }
 
+    /**
+     * 表达式语句，执行表达式但不使用返回值
+     * 例: foo();, x = 1;, console.log("hi");
+     */
     @Override
     public Void visitExpressionStmt(Expression stmt) {
         evaluate(stmt.expression);
         return null;
     }
 
+    /**
+     * 块语句，创建新作用域并执行语句列表
+     * 例: { var x = 1; console.log(x); }
+     */
     @Override
     public Void visitBlockStmt(Block stmt) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'visitBlockStmt'");
     }
 
+    /**
+     * 空语句，什么都不做
+     * 例: ; (单独的分号)
+     */
     @Override
     public Void visitEmptyStmt(Empty stmt) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'visitEmptyStmt'");
     }
 
+    /**
+     * 变量声明语句，在当前环境中定义变量
+     * 例: var x;, var x = 1;, var a = 1, b = 2;
+     */
     @Override
     public Void visitVarStmt(Var stmt) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'visitVarStmt'");
+        if (stmt.declarations.size() > 0) {
+            for (VarDeclarator declarations : stmt.declarations) {
+                Object value = declarations.init;
+                environment.define(declarations.name.lexeme, value);
+            }
+        }
+        return null;
     }
 
+    /**
+     * 函数声明语句
+     * 例: function add(a, b) { return a + b; }
+     */
     @Override
     public Void visitFunctionStmt(com.jsparser.Stmt.Function stmt) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'visitFunctionStmt'");
     }
 
+    /**
+     * if 条件语句
+     * 例: if (x > 0) { ... }, if (x) { ... } else { ... }
+     */
     @Override
     public Void visitIfStmt(If stmt) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'visitIfStmt'");
     }
 
+    /**
+     * while 循环语句
+     * 例: while (i < 10) { i++; }
+     */
     @Override
     public Void visitWhileStmt(While stmt) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'visitWhileStmt'");
     }
 
+    /**
+     * do-while 循环语句，至少执行一次循环体
+     * 例: do { i++; } while (i < 10);
+     */
     @Override
     public Void visitDoWhileStmt(DoWhile stmt) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'visitDoWhileStmt'");
     }
 
+    /**
+     * for 循环语句
+     * 例: for (var i = 0; i < 10; i++) { ... }
+     */
     @Override
     public Void visitForStmt(For stmt) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'visitForStmt'");
     }
 
+    /**
+     * for-in 循环语句，遍历对象的可枚举属性
+     * 例: for (var key in obj) { console.log(key); }
+     */
     @Override
     public Void visitForInStmt(ForIn stmt) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'visitForInStmt'");
     }
 
+    /**
+     * switch 语句
+     * 例: switch (x) { case 1: ... break; default: ... }
+     */
     @Override
     public Void visitSwitchStmt(Switch stmt) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'visitSwitchStmt'");
     }
 
+    /**
+     * break 语句，跳出当前循环或 switch
+     * 例: break;, break label;
+     */
     @Override
     public Void visitBreakStmt(Break stmt) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'visitBreakStmt'");
     }
 
+    /**
+     * continue 语句，跳过当前循环迭代
+     * 例: continue;, continue label;
+     */
     @Override
     public Void visitContinueStmt(Continue stmt) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'visitContinueStmt'");
     }
 
+    /**
+     * return 语句，从函数返回值
+     * 例: return;, return x + y;
+     */
     @Override
     public Void visitReturnStmt(Return stmt) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'visitReturnStmt'");
     }
 
+    /**
+     * throw 语句，抛出异常
+     * 例: throw new Error("message");, throw "error";
+     */
     @Override
     public Void visitThrowStmt(Throw stmt) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'visitThrowStmt'");
     }
 
+    /**
+     * try-catch-finally 语句，异常处理
+     * 例: try { ... } catch(e) { ... } finally { ... }
+     */
     @Override
     public Void visitTryStmt(Try stmt) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'visitTryStmt'");
     }
 
+    /**
+     * with 语句，扩展作用域链（不推荐使用）
+     * 例: with (obj) { x = 1; } // 等同于 obj.x = 1
+     */
     @Override
     public Void visitWithStmt(With stmt) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'visitWithStmt'");
     }
 
+    /**
+     * 标签语句，为语句添加标签用于 break/continue
+     * 例: outer: for (...) { inner: for (...) { break outer; } }
+     */
     @Override
     public Void visitLabeledStmt(Labeled stmt) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'visitLabeledStmt'");
     }
 
+    /**
+     * debugger 语句，触发调试器断点
+     * 例: debugger;
+     */
     @Override
     public Void visitDebuggerStmt(Debugger stmt) {
         // TODO Auto-generated method stub
