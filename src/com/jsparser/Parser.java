@@ -49,7 +49,7 @@ public class Parser {
         return false;
     }
 
-    private Expr primary() {
+    private Expr PrimaryExpression() {
         if (match(TokenType.FALSE))
             return new Expr.Literal(false);
         if (match(TokenType.TRUE))
@@ -73,19 +73,19 @@ public class Parser {
     }
 
     private Expr BitwiseORExpression() {
-        Expr expr = primary();
+        Expr expr = PrimaryExpression();
         return expr;
     }
 
     private Expr call() {
-        Expr expr = primary();
+        Expr expr = PrimaryExpression();
         return expr;
     }
 
-    private Expr unary() {
+    private Expr UnaryExpression() {
         if (match(TokenType.BANG, TokenType.MINUS)) {
             Token operator = previous();
-            Expr right = unary();
+            Expr right = UnaryExpression();
             return new Expr.Unary(operator, right, true);
         }
 
@@ -93,10 +93,10 @@ public class Parser {
     }
 
     private Expr factor() {
-        var expr = unary();
+        var expr = UnaryExpression();
         while (match(TokenType.SLASH, TokenType.STAR)) {
             var operator = previous();
-            var right = unary();
+            var right = UnaryExpression();
             expr = new Expr.Binary(expr, operator, right);
 
         }
@@ -163,7 +163,7 @@ public class Parser {
             }
             expr = new Expr.New(keyword, callee, args);
         } else {
-            expr = primary();
+            expr = PrimaryExpression();
         }
 
         // 解析 '[' Expression ']' 或 '.' IDENTIFIER 链
@@ -205,22 +205,22 @@ public class Parser {
         return expr;
     }
 
-    private Expr UnaryExpression() {
+    private Expr UnaryExpressionExpression() {
         // 先检查前缀运算符
         if (match(TokenType.BANG, TokenType.PLUS_PLUS, TokenType.MINUS_MINUS, TokenType.MINUS, TokenType.PLUS,
                 TokenType.TYPEOF)) {
             Token operator = previous();
-            Expr right = UnaryExpression();
+            Expr right = UnaryExpressionExpression();
             return new Expr.Unary(operator, right, true);
         }
         return PostfixExpression();
     }
 
     private Expr MultiplicativeExpression() {
-        var expr = UnaryExpression();
+        var expr = UnaryExpressionExpression();
         while (match(TokenType.STAR, TokenType.SLASH, TokenType.PERCENT)) {
             var operator = previous();
-            var right = UnaryExpression();
+            var right = UnaryExpressionExpression();
             expr = new Expr.Binary(expr, operator, right);
         }
         return expr;
