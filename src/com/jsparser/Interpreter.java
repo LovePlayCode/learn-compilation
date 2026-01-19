@@ -499,8 +499,7 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
      */
     @Override
     public Void visitFunctionStmt(com.jsparser.Stmt.Function stmt) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'visitFunctionStmt'");
+        return null;
     }
 
     /**

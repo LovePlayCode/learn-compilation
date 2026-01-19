@@ -115,6 +115,13 @@ class AstTreePrinter implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
     @Override
     public Void visitBlockStmt(Stmt.Block stmt) {
         printNode("Block");
+        pushPrefix();
+        List<Stmt> stmts = stmt.getStatements();
+        for (int i = 0; i < stmts.size(); i++) {
+            isLast = (i == stmts.size() - 1);
+            printStatement(stmts.get(i));
+        }
+        popPrefix();
         return null;
     }
 
@@ -126,19 +133,97 @@ class AstTreePrinter implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
 
     @Override
     public Void visitFunctionStmt(Stmt.Function stmt) {
-        printNode("Function");
+        printNode("FunctionDeclaration(" + stmt.name.lexeme + ")");
+        pushPrefix();
+        
+        // 打印参数列表
+        isLast = (stmt.body == null);
+        if (stmt.params.isEmpty()) {
+            printNode("params: []");
+        } else {
+            StringBuilder params = new StringBuilder("params: [");
+            for (int i = 0; i < stmt.params.size(); i++) {
+                if (i > 0) params.append(", ");
+                params.append(stmt.params.get(i).lexeme);
+            }
+            params.append("]");
+            printNode(params.toString());
+        }
+        
+        // 打印函数体
+        if (stmt.body != null) {
+            isLast = true;
+            printNode("body:");
+            pushPrefix();
+            List<Stmt> stmts = stmt.body.getStatements();
+            for (int i = 0; i < stmts.size(); i++) {
+                isLast = (i == stmts.size() - 1);
+                printStatement(stmts.get(i));
+            }
+            popPrefix();
+        }
+        
+        popPrefix();
         return null;
     }
 
     @Override
     public Void visitIfStmt(Stmt.If stmt) {
         printNode("If");
+        pushPrefix();
+        
+        // 条件
+        isLast = false;
+        printNode("condition:");
+        pushPrefix();
+        isLast = true;
+        printExpr(stmt.condition);
+        popPrefix();
+        
+        // consequent 分支 (then)
+        isLast = (stmt.alternate == null);
+        printNode("consequent:");
+        pushPrefix();
+        isLast = true;
+        printStatement(stmt.consequent);
+        popPrefix();
+        
+        // alternate 分支 (else)
+        if (stmt.alternate != null) {
+            isLast = true;
+            printNode("alternate:");
+            pushPrefix();
+            isLast = true;
+            printStatement(stmt.alternate);
+            popPrefix();
+        }
+        
+        popPrefix();
         return null;
     }
 
     @Override
     public Void visitWhileStmt(Stmt.While stmt) {
         printNode("While");
+        pushPrefix();
+        
+        // 条件
+        isLast = false;
+        printNode("condition:");
+        pushPrefix();
+        isLast = true;
+        printExpr(stmt.condition);
+        popPrefix();
+        
+        // 循环体
+        isLast = true;
+        printNode("body:");
+        pushPrefix();
+        isLast = true;
+        printStatement(stmt.body);
+        popPrefix();
+        
+        popPrefix();
         return null;
     }
 
@@ -181,6 +266,12 @@ class AstTreePrinter implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
     @Override
     public Void visitReturnStmt(Stmt.Return stmt) {
         printNode("Return");
+        if (stmt.argument != null) {
+            pushPrefix();
+            isLast = true;
+            printExpr(stmt.argument);
+            popPrefix();
+        }
         return null;
     }
 
@@ -346,13 +437,58 @@ class AstTreePrinter implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
 
     @Override
     public Void visitMemberExpr(Expr.Member expr) {
-        printNode("Member");
+        String propName = expr.computed ? "[computed]" : "." + expr.property.lexeme;
+        printNode("Member(" + propName + ")");
+        pushPrefix();
+        
+        // 打印对象
+        isLast = !expr.computed;
+        printNode("object:");
+        pushPrefix();
+        isLast = true;
+        printExpr(expr.object);
+        popPrefix();
+        
+        // 如果是计算属性，打印属性表达式
+        if (expr.computed && expr.computedProperty != null) {
+            isLast = true;
+            printNode("property:");
+            pushPrefix();
+            isLast = true;
+            printExpr(expr.computedProperty);
+            popPrefix();
+        }
+        
+        popPrefix();
         return null;
     }
 
     @Override
     public Void visitCallExpr(Expr.Call expr) {
         printNode("Call");
+        pushPrefix();
+        
+        // 打印被调用者
+        isLast = expr.arguments.isEmpty();
+        printNode("callee:");
+        pushPrefix();
+        isLast = true;
+        printExpr(expr.callee);
+        popPrefix();
+        
+        // 打印参数
+        if (!expr.arguments.isEmpty()) {
+            isLast = true;
+            printNode("arguments:");
+            pushPrefix();
+            for (int i = 0; i < expr.arguments.size(); i++) {
+                isLast = (i == expr.arguments.size() - 1);
+                printExpr(expr.arguments.get(i));
+            }
+            popPrefix();
+        }
+        
+        popPrefix();
         return null;
     }
 

@@ -78,16 +78,18 @@ public class Lox {
     private static void run(String source) {
         Scanner scanner = new Scanner(source);
         List<Token> tokens = scanner.scanTokens();
-        System.out.println("tokens==" + tokens);
         Parser parser = new Parser(tokens);
         List<Stmt> statements = parser.parse();
 
         // Stop if there was a syntax error.
         if (hadError)
             return;
-        interpreter.interpret(statements);
 
-        // 打印 AST 树形结构
+        // 打印 AST 树形结构（在解释执行之前）
+        System.out.println("=== AST ===");
         System.out.println(new AstTreePrinter().print(statements));
+        System.out.println("=== Output ===");
+
+        interpreter.interpret(statements);
     }
 }
