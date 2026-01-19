@@ -413,6 +413,20 @@ public class Parser {
         return new Stmt.While(condition, body);
     }
 
+    private List<Stmt> StatementList() {
+        List<Stmt> list = new ArrayList<Stmt>();
+        while (!isAtEnd() && !check(TokenType.RIGHT_BRACE)) {
+            list.add(Statement());
+        }
+        return list;
+    }
+
+    private Stmt Block() {
+        var stmtList = StatementList();
+        consume(TokenType.RIGHT_BRACE, "期望一个}在 block 后面.");
+        return new Stmt.Block(stmtList);
+    }
+
     private Stmt Statement() {
         if (match(TokenType.VAR)) {
             return VariableStatement();
@@ -425,6 +439,9 @@ public class Parser {
         }
         if (match(TokenType.WHILE)) {
             return WhileStatement();
+        }
+        if (match(TokenType.LEFT_PAREN)) {
+            return Block();
         }
         return ExpressionStatement();
     }

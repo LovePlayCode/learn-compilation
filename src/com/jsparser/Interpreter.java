@@ -233,8 +233,7 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
      */
     @Override
     public Object visitIdentifierExpr(Identifier expr) {
-        // TODO Auto-generated method stub
-        return null;
+        return environment.get(expr.name);
     }
 
     /**
@@ -389,14 +388,28 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         return null;
     }
 
+    void executeBlock(List<Stmt> statements,
+            Environment environment) {
+        Environment previous = this.environment;
+        try {
+            this.environment = environment;
+
+            for (Stmt statement : statements) {
+                execute(statement);
+            }
+        } finally {
+            this.environment = previous;
+        }
+    }
+
     /**
      * 块语句，创建新作用域并执行语句列表
      * 例: { var x = 1; console.log(x); }
      */
     @Override
     public Void visitBlockStmt(Block stmt) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'visitBlockStmt'");
+        executeBlock(stmt.statements, new Environment(environment));
+        return null;
     }
 
     /**
