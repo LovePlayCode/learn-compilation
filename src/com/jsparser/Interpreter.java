@@ -1,5 +1,6 @@
 package com.jsparser;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.jsparser.Expr.ArrayLiteral;
@@ -43,7 +44,36 @@ import com.jsparser.Stmt.While;
 import com.jsparser.Stmt.With;
 
 public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
-    private Environment environment = new Environment();
+    // 全局作用域的概念
+    final Environment globals = new Environment();
+    private Environment environment = globals;
+
+    Interpreter() {
+        globals.define("console.log", new LoxCallable() {
+            @Override
+            public int arity() {
+                return -1; // 可变参数
+            }
+
+            @Override
+            public Object call(Interpreter interpreter,
+                    List<Object> arguments) {
+                StringBuilder sb = new StringBuilder();
+                for (int i = 0; i < arguments.size(); i++) {
+                    if (i > 0)
+                        sb.append(" ");
+                    sb.append(stringify(arguments.get(i)));
+                }
+                System.out.println(sb.toString());
+                return null; // console.log 返回 undefined
+            }
+
+            @Override
+            public String toString() {
+                return "function log() { [native code] }";
+            }
+        });
+    }
 
     /**
      * 数组字面量表达式
@@ -178,9 +208,26 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
      * 例: foo(), obj.method(1, 2), console.log("hello")
      */
     @Override
-    public Object visitCallExpr(Call expr) {
-        // TODO Auto-generated method stub
-        return null;
+    public Object visitCallExpr(Expr.Call expr) {
+        Object callee = evaluate(expr.callee);
+
+        List<Object> arguments = new ArrayList<>();
+        for (Expr argument : expr.arguments) {
+            arguments.add(evaluate(argument));
+        }
+        if (!(callee instanceof LoxCallable)) {
+            throw new RuntimeError(expr.paren,
+                    "Can only call functions and classes.");
+        }
+        LoxCallable function = (LoxCallable) callee;
+        // 检查传入的参数是否满足函数本身要求的参数
+        // arity < 0 表示可变参数函数，跳过检查
+        if (function.arity() >= 0 && arguments.size() != function.arity()) {
+            throw new RuntimeError(expr.paren, "Expected " +
+                    function.arity() + " arguments but got " +
+                    arguments.size() + ".");
+        }
+        return function.call(this, arguments);
     }
 
     /**
@@ -473,7 +520,8 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
     /**
      * while 循环语句
-     * 例: while (i < 10) { i++; }
+     * 例: while
+     * (i < 10) { i++; }
      */
     @Override
     public Void visitWhileStmt(Stmt.While stmt) {

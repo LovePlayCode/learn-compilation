@@ -82,6 +82,10 @@ abstract class Stmt {
             return visitor.visitBlockStmt(this);
         }
 
+        public List<Stmt> getStatements() {
+            return statements;
+        }
+
         final List<Stmt> statements;
     }
 
@@ -121,7 +125,7 @@ abstract class Stmt {
      * Function stmt
      */
     static class Function extends Stmt {
-        Function(Token name, List<Token> params, Stmt body) {
+        Function(Token name, List<Token> params, Stmt.Block body) {
             this.name = name;
             this.params = params;
             this.body = body;
@@ -134,7 +138,7 @@ abstract class Stmt {
 
         final Token name;
         final List<Token> params;
-        final Stmt body;
+        final Stmt.Block body;
     }
 
     /**

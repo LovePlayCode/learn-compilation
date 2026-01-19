@@ -153,8 +153,29 @@ public class Parser {
         return expr;
     }
 
-    private Expr CallExpression() {
-        return null;
+    // 接收 callee 参数，而不是重新解析
+    private Expr CallExpression(Expr callee) {
+        List<Expr> args = Arguments();
+        Token paren = previous();
+        Expr expr = new Expr.Call(callee, paren, args);
+
+        while (true) {
+            if (check(TokenType.LEFT_PAREN)) {
+                args = Arguments();
+                paren = previous();
+                expr = new Expr.Call(expr, paren, args);
+            } else if (match(TokenType.DOT)) {
+                Token name = consume(TokenType.IDENTIFIER, "Expect property name after '.'.");
+                expr = new Expr.Member(expr, name, false);
+            } else if (match(TokenType.LEFT_BRACKET)) {
+                Expr index = Expression();
+                consume(TokenType.RIGHT_BRACKET, "Expect ']' after index.");
+                expr = new Expr.Member(expr, index, true);
+            } else {
+                break;
+            }
+        }
+        return expr;
     }
 
     private Expr Expression() {
@@ -221,7 +242,7 @@ public class Parser {
 
         // 如果后面跟 '('，则进入 CallExpression 处理
         if (check(TokenType.LEFT_PAREN)) {
-            expr = CallExpression();
+            expr = CallExpression(expr);
         }
         return expr;
     }
@@ -516,7 +537,13 @@ public class Parser {
             params = FormalParameterList();
         }
         consume(TokenType.RIGHT_PAREN, "期望一个)在函数声明后面.");
-        var body = Block();
+        Stmt.Block body = null;
+        if (match(TokenType.LEFT_BRACE)) {
+            body = (Stmt.Block) Block();
+        } else {
+            body = new Stmt.Block(null);
+        }
+
         return new Stmt.Function(name, params, body);
     }
 

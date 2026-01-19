@@ -85,7 +85,7 @@ public class Lox {
         // Stop if there was a syntax error.
         if (hadError)
             return;
-//        interpreter.interpret(expression);
+        interpreter.interpret(statements);
 
         // 打印 AST 树形结构
         System.out.println(new AstTreePrinter().print(statements));
