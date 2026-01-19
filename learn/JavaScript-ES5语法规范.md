@@ -1,14 +1,6 @@
-# JavaScript ES5 语法规范
+# JavaScript ES5 精简语法规范（编译原理学习版）
 
-本文档描述 JavaScript ES5 的语法规范，使用 BNF（巴科斯-诺尔范式）表示。
-
-## 目录
-
-- [程序结构](#程序结构)
-- [语句](#语句statements)
-- [函数](#函数)
-- [表达式](#表达式expressions)
-- [运算符优先级](#运算符优先级表)
+本文档是 ES5 语法的精简版本，移除了位运算、移位运算等复杂特性，专注于编译原理核心概念。
 
 ---
 
@@ -33,8 +25,6 @@ SourceElement
 
 ## 语句（Statements）
 
-### 语句总览
-
 ```bnf
 Statement
     : Block
@@ -42,15 +32,9 @@ Statement
     | EmptyStatement
     | ExpressionStatement
     | IfStatement
-    | IterationStatement
-    | ContinueStatement
-    | BreakStatement
+    | WhileStatement
+    | ForStatement
     | ReturnStatement
-    | WithStatement
-    | SwitchStatement
-    | ThrowStatement
-    | TryStatement
-    | DebuggerStatement
     ;
 ```
 
@@ -78,11 +62,7 @@ VariableDeclarationList
     ;
 
 VariableDeclaration
-    : IDENTIFIER Initializer?
-    ;
-
-Initializer
-    : '=' AssignmentExpression
+    : IDENTIFIER ('=' AssignmentExpression)?
     ;
 ```
 
@@ -90,7 +70,7 @@ Initializer
 ```javascript
 var x;
 var a = 1;
-var x = 1, y = 2, z;
+var x = 1, y = 2;
 ```
 
 ### 空语句
@@ -105,15 +85,8 @@ EmptyStatement
 
 ```bnf
 ExpressionStatement
-    : Expression ';'    // 注意：不能以 '{' 或 'function' 开头
+    : Expression ';'
     ;
-```
-
-**示例：**
-```javascript
-x = 5;
-foo();
-a + b;
 ```
 
 ### If 语句
@@ -124,169 +97,28 @@ IfStatement
     ;
 ```
 
-**示例：**
-```javascript
-if (x > 0) {
-    console.log("positive");
-} else {
-    console.log("non-positive");
-}
-```
-
 ### 循环语句
 
 ```bnf
-IterationStatement
-    : 'do' Statement 'while' '(' Expression ')' ';'
-    | 'while' '(' Expression ')' Statement
-    | 'for' '(' ForInit? ';' Expression? ';' Expression? ')' Statement
-    | 'for' '(' 'var' VariableDeclarationList ';' Expression? ';' Expression? ')' Statement
-    | 'for' '(' LeftHandSideExpression 'in' Expression ')' Statement
-    | 'for' '(' 'var' VariableDeclaration 'in' Expression ')' Statement
+WhileStatement
+    : 'while' '(' Expression ')' Statement
+    ;
+
+ForStatement
+    : 'for' '(' ForInit? ';' Expression? ';' Expression? ')' Statement
     ;
 
 ForInit
-    : Expression    // 不含 'in' 运算符
+    : 'var' VariableDeclarationList
+    | Expression
     ;
 ```
 
-**示例：**
-```javascript
-// do-while
-do {
-    x++;
-} while (x < 10);
-
-// while
-while (x > 0) {
-    x--;
-}
-
-// for
-for (var i = 0; i < 10; i++) {
-    console.log(i);
-}
-
-// for-in
-for (var key in obj) {
-    console.log(key);
-}
-```
-
-### 跳转语句
+### Return 语句
 
 ```bnf
-ContinueStatement
-    : 'continue' IDENTIFIER? ';'
-    ;
-
-BreakStatement
-    : 'break' IDENTIFIER? ';'
-    ;
-
 ReturnStatement
     : 'return' Expression? ';'
-    ;
-```
-
-**示例：**
-```javascript
-continue;
-continue outerLoop;
-break;
-break label;
-return;
-return x + y;
-```
-
-### With 语句
-
-```bnf
-WithStatement
-    : 'with' '(' Expression ')' Statement
-    ;
-```
-
-**注意：** 严格模式下禁止使用 `with`。
-
-### Switch 语句
-
-```bnf
-SwitchStatement
-    : 'switch' '(' Expression ')' CaseBlock
-    ;
-
-CaseBlock
-    : '{' CaseClauses? DefaultClause? CaseClauses? '}'
-    ;
-
-CaseClauses
-    : CaseClause+
-    ;
-
-CaseClause
-    : 'case' Expression ':' StatementList?
-    ;
-
-DefaultClause
-    : 'default' ':' StatementList?
-    ;
-```
-
-**示例：**
-```javascript
-switch (x) {
-    case 1:
-        console.log("one");
-        break;
-    case 2:
-        console.log("two");
-        break;
-    default:
-        console.log("other");
-}
-```
-
-### 异常处理
-
-```bnf
-ThrowStatement
-    : 'throw' Expression ';'    // 'throw' 和 Expression 之间不能有换行
-    ;
-
-TryStatement
-    : 'try' Block Catch
-    | 'try' Block Finally
-    | 'try' Block Catch Finally
-    ;
-
-Catch
-    : 'catch' '(' IDENTIFIER ')' Block
-    ;
-
-Finally
-    : 'finally' Block
-    ;
-```
-
-**示例：**
-```javascript
-try {
-    riskyOperation();
-} catch (e) {
-    console.log("Error: " + e.message);
-} finally {
-    cleanup();
-}
-
-throw new Error("Something went wrong");
-```
-
-### Debugger 语句
-
-```bnf
-DebuggerStatement
-    : 'debugger' ';'
     ;
 ```
 
@@ -294,11 +126,17 @@ DebuggerStatement
 
 ## 函数
 
-### 函数声明
-
 ```bnf
 FunctionDeclaration
-    : 'function' IDENTIFIER '(' FormalParameterList? ')' '{' FunctionBody '}'
+    : 'function' IDENTIFIER '(' FormalParameterList? ')' Block
+    ;
+
+FunctionExpression
+    : 'function' IDENTIFIER? '(' FormalParameterList? ')' Block
+    ;
+
+FormalParameterList
+    : IDENTIFIER (',' IDENTIFIER)*
     ;
 ```
 
@@ -307,46 +145,49 @@ FunctionDeclaration
 function add(a, b) {
     return a + b;
 }
-```
 
-### 函数表达式
-
-```bnf
-FunctionExpression
-    : 'function' IDENTIFIER? '(' FormalParameterList? ')' '{' FunctionBody '}'
-    ;
-```
-
-**示例：**
-```javascript
-// 匿名函数
-var add = function(a, b) {
-    return a + b;
+var mul = function(a, b) {
+    return a * b;
 };
-
-// 命名函数表达式
-var factorial = function fact(n) {
-    return n <= 1 ? 1 : n * fact(n - 1);
-};
-```
-
-### 参数和函数体
-
-```bnf
-FormalParameterList
-    : IDENTIFIER (',' IDENTIFIER)*
-    ;
-
-FunctionBody
-    : SourceElements?
-    ;
 ```
 
 ---
 
 ## 表达式（Expressions）
 
-### 表达式总览（按优先级从低到高）
+### 表达式优先级链（从低到高）
+
+```
+Expression          →  逗号表达式
+    ↓
+AssignmentExpr      →  赋值表达式（右结合）
+    ↓
+ConditionalExpr     →  三元表达式
+    ↓
+LogicalORExpr       →  ||
+    ↓
+LogicalANDExpr      →  &&
+    ↓
+EqualityExpr        →  == != === !==
+    ↓
+RelationalExpr      →  < > <= >=
+    ↓
+AdditiveExpr        →  + -
+    ↓
+MultiplicativeExpr  →  * / %
+    ↓
+UnaryExpr           →  ! - + typeof
+    ↓
+PostfixExpr         →  ++ --
+    ↓
+CallExpr            →  函数调用
+    ↓
+MemberExpr          →  . []
+    ↓
+PrimaryExpr         →  字面量、标识符、括号
+```
+
+### 逗号表达式
 
 ```bnf
 Expression
@@ -363,17 +204,11 @@ AssignmentExpression
     ;
 
 AssignmentOperator
-    : '=' | '*=' | '/=' | '%=' | '+=' | '-='
-    | '<<=' | '>>=' | '>>>=' | '&=' | '^=' | '|='
+    : '=' | '+=' | '-=' | '*=' | '/='
     ;
 ```
 
-**示例：**
-```javascript
-x = 5;
-x += 10;
-x <<= 2;
-```
+**实现要点：** 右结合，先解析左侧，判断是否为赋值运算符后递归。
 
 ### 条件（三元）表达式
 
@@ -381,11 +216,6 @@ x <<= 2;
 ConditionalExpression
     : LogicalORExpression ('?' AssignmentExpression ':' AssignmentExpression)?
     ;
-```
-
-**示例：**
-```javascript
-var result = x > 0 ? "positive" : "non-positive";
 ```
 
 ### 逻辑表达式
@@ -396,38 +226,8 @@ LogicalORExpression
     ;
 
 LogicalANDExpression
-    : BitwiseORExpression ('&&' BitwiseORExpression)*
+    : EqualityExpression ('&&' EqualityExpression)*
     ;
-```
-
-**示例：**
-```javascript
-a && b
-x || y
-a && b || c && d
-```
-
-### 位运算表达式
-
-```bnf
-BitwiseORExpression
-    : BitwiseXORExpression ('|' BitwiseXORExpression)*
-    ;
-
-BitwiseXORExpression
-    : BitwiseANDExpression ('^' BitwiseANDExpression)*
-    ;
-
-BitwiseANDExpression
-    : EqualityExpression ('&' EqualityExpression)*
-    ;
-```
-
-**示例：**
-```javascript
-a | b
-a ^ b
-a & b
 ```
 
 ### 相等性表达式
@@ -438,43 +238,12 @@ EqualityExpression
     ;
 ```
 
-**示例：**
-```javascript
-a == b      // 宽松相等
-a === b     // 严格相等
-a != b      // 宽松不等
-a !== b     // 严格不等
-```
-
 ### 关系表达式
 
 ```bnf
 RelationalExpression
-    : ShiftExpression (('<' | '>' | '<=' | '>=' | 'instanceof' | 'in') ShiftExpression)*
+    : AdditiveExpression (('<' | '>' | '<=' | '>=') AdditiveExpression)*
     ;
-```
-
-**示例：**
-```javascript
-a < b
-a >= b
-obj instanceof Array
-"name" in obj
-```
-
-### 移位表达式
-
-```bnf
-ShiftExpression
-    : AdditiveExpression (('<<' | '>>' | '>>>') AdditiveExpression)*
-    ;
-```
-
-**示例：**
-```javascript
-x << 2      // 左移
-x >> 2      // 有符号右移
-x >>> 2     // 无符号右移
 ```
 
 ### 加法表达式
@@ -498,89 +267,47 @@ MultiplicativeExpression
 ```bnf
 UnaryExpression
     : PostfixExpression
-    | 'delete' UnaryExpression
-    | 'void' UnaryExpression
-    | 'typeof' UnaryExpression
-    | '++' UnaryExpression
-    | '--' UnaryExpression
-    | '+' UnaryExpression
-    | '-' UnaryExpression
-    | '~' UnaryExpression
-    | '!' UnaryExpression
+    | ('!' | '-' | '+' | 'typeof') UnaryExpression
     ;
-```
-
-**示例：**
-```javascript
-delete obj.prop
-void 0
-typeof x
-++i
---i
-+x      // 转为数字
--x      // 取负
-~x      // 按位取反
-!flag   // 逻辑非
 ```
 
 ### 后缀表达式
 
 ```bnf
 PostfixExpression
-    : LeftHandSideExpression ('++' | '--')?    // 运算符前不能有换行
+    : LeftHandSideExpression ('++' | '--')?
     ;
 ```
 
-**示例：**
-```javascript
-i++
-j--
-```
-
-### 左值表达式
+### 左值表达式（核心难点）
 
 ```bnf
 LeftHandSideExpression
     : CallExpression
-    | NewExpression
+    | MemberExpression
     ;
 
 CallExpression
     : MemberExpression Arguments (Arguments | '[' Expression ']' | '.' IDENTIFIER)*
     ;
 
-NewExpression
-    : MemberExpression
-    | 'new' NewExpression
-    ;
-
 MemberExpression
     : PrimaryExpression ('[' Expression ']' | '.' IDENTIFIER)*
-    | FunctionExpression ('[' Expression ']' | '.' IDENTIFIER)*
-    | 'new' MemberExpression Arguments ('[' Expression ']' | '.' IDENTIFIER)*
+    | 'new' MemberExpression Arguments?
+    ;
+
+Arguments
+    : '(' (AssignmentExpression (',' AssignmentExpression)*)? ')'
     ;
 ```
 
 **示例：**
 ```javascript
-foo()
-obj.method()
-arr[0]
-obj.prop
-new Date()
-new Array(10)
-```
-
-### 参数列表
-
-```bnf
-Arguments
-    : '(' ArgumentList? ')'
-    ;
-
-ArgumentList
-    : AssignmentExpression (',' AssignmentExpression)*
-    ;
+foo()           // 函数调用
+obj.method()    // 方法调用
+arr[0]          // 索引访问
+obj.prop        // 属性访问
+new Date()      // 构造函数
 ```
 
 ### 基本表达式
@@ -600,158 +327,106 @@ PrimaryExpression
 
 ```bnf
 Literal
-    : NULL
-    | TRUE
-    | FALSE
-    | NUMBER
-    | STRING
+    : NULL | TRUE | FALSE | NUMBER | STRING
     ;
-```
 
-**示例：**
-```javascript
-null
-true
-false
-42
-3.14
-"hello"
-'world'
-```
-
-### 数组字面量
-
-```bnf
 ArrayLiteral
-    : '[' ElementList? ']'
+    : '[' (AssignmentExpression (',' AssignmentExpression)*)? ']'
     ;
 
-ElementList
-    : AssignmentExpression? (',' AssignmentExpression?)*
-    ;
-```
-
-**示例：**
-```javascript
-[]
-[1, 2, 3]
-[1, , 3]        // 稀疏数组
-[1, 2, 3, ]     // 尾随逗号
-```
-
-### 对象字面量
-
-```bnf
 ObjectLiteral
-    : '{' PropertyNameAndValueList? '}'
-    ;
-
-PropertyNameAndValueList
-    : PropertyAssignment (',' PropertyAssignment)* ','?
+    : '{' (PropertyAssignment (',' PropertyAssignment)*)? '}'
     ;
 
 PropertyAssignment
-    : PropertyName ':' AssignmentExpression
-    | 'get' PropertyName '(' ')' '{' FunctionBody '}'
-    | 'set' PropertyName '(' IDENTIFIER ')' '{' FunctionBody '}'
+    : (IDENTIFIER | STRING | NUMBER) ':' AssignmentExpression
     ;
-
-PropertyName
-    : IDENTIFIER
-    | STRING
-    | NUMBER
-    ;
-```
-
-**示例：**
-```javascript
-{}
-{ name: "John", age: 30 }
-{ "special-key": value }
-{ 0: "first", 1: "second" }
-{
-    get fullName() { return this.first + " " + this.last; },
-    set fullName(v) { /* ... */ }
-}
 ```
 
 ---
 
-## 运算符优先级表
-
-从低到高排列：
+## 运算符优先级表（精简版）
 
 | 优先级 | 运算符 | 描述 | 结合性 |
 |--------|--------|------|--------|
-| 1 | `,` | 逗号 | 左到右 |
-| 2 | `= += -= *= /= %= <<= >>= >>>= &= ^= \|=` | 赋值 | 右到左 |
-| 3 | `?:` | 条件（三元） | 右到左 |
-| 4 | `\|\|` | 逻辑或 | 左到右 |
-| 5 | `&&` | 逻辑与 | 左到右 |
-| 6 | `\|` | 按位或 | 左到右 |
-| 7 | `^` | 按位异或 | 左到右 |
-| 8 | `&` | 按位与 | 左到右 |
-| 9 | `== != === !==` | 相等性 | 左到右 |
-| 10 | `< > <= >= instanceof in` | 关系 | 左到右 |
-| 11 | `<< >> >>>` | 移位 | 左到右 |
-| 12 | `+ -` | 加减 | 左到右 |
-| 13 | `* / %` | 乘除取模 | 左到右 |
-| 14 | `! ~ + - typeof void delete ++ --` | 一元（前缀） | 右到左 |
-| 15 | `++ --` | 后缀 | 无 |
-| 16 | `new` (带参数) | 带参数的 new | 右到左 |
-| 17 | `. [] ()` | 成员访问、调用 | 左到右 |
+| 1 | `,` | 逗号 | 左 |
+| 2 | `= += -= *= /=` | 赋值 | **右** |
+| 3 | `?:` | 条件 | **右** |
+| 4 | `\|\|` | 逻辑或 | 左 |
+| 5 | `&&` | 逻辑与 | 左 |
+| 6 | `== != === !==` | 相等性 | 左 |
+| 7 | `< > <= >=` | 关系 | 左 |
+| 8 | `+ -` | 加减 | 左 |
+| 9 | `* / %` | 乘除 | 左 |
+| 10 | `! - + typeof` | 一元前缀 | **右** |
+| 11 | `++ --` | 后缀 | - |
+| 12 | `()` | 函数调用 | 左 |
+| 13 | `. []` | 成员访问 | 左 |
 
 ---
 
-## 自动分号插入（ASI）
+## 解析器实现提示
 
-JavaScript 在某些情况下会自动插入分号：
+### 1. 二元表达式（左结合）
 
-1. 当遇到换行符，且下一个 token 无法与前面的语句连接时
-2. 当遇到 `}` 时
-3. 当遇到文件末尾时
+```java
+// 通用模式：AdditiveExpression, MultiplicativeExpression 等
+private Expr binaryExpr(Supplier<Expr> operand, TokenType... operators) {
+    Expr left = operand.get();
+    while (match(operators)) {
+        Token op = previous();
+        Expr right = operand.get();
+        left = new Expr.Binary(left, op, right);
+    }
+    return left;
+}
+```
 
-**特殊规则：**
-- `return`、`throw`、`break`、`continue` 后如果有换行，会自动插入分号
-- `++` 和 `--` 作为后缀时，不能与操作数之间有换行
+### 2. 赋值表达式（右结合）
 
-**示例：**
-```javascript
-// 这会被解析为 return; undefined;
-return
-undefined
+```java
+private Expr AssignmentExpression() {
+    Expr expr = ConditionalExpression();
+    
+    if (match(EQUAL, PLUS_EQUAL, MINUS_EQUAL, STAR_EQUAL, SLASH_EQUAL)) {
+        Token op = previous();
+        Expr value = AssignmentExpression();  // 递归实现右结合
+        
+        if (expr instanceof Expr.Identifier) {
+            return new Expr.Assign(expr, op, value);
+        }
+        throw error(op, "Invalid assignment target.");
+    }
+    return expr;
+}
+```
 
-// 应该写成
-return undefined;
+### 3. 左值表达式解析策略
+
+```
+解析流程：
+1. 先解析 PrimaryExpression
+2. 循环处理后缀：. [] ()
+3. 根据是否有 () 区分 CallExpression 和 MemberExpression
 ```
 
 ---
 
-## 保留字
+## 移除的特性（可后续扩展）
 
-### ES5 关键字
-
-```
-break      case       catch      continue   debugger
-default    delete     do         else       finally
-for        function   if         in         instanceof
-new        return     switch     this       throw
-try        typeof     var        void       while
-with
-```
-
-### 未来保留字（严格模式）
-
-```
-class      const      enum       export     extends
-import     super
-implements interface  let        package    private
-protected  public     static     yield
-```
+- 位运算：`& | ^ ~ << >> >>>`
+- for-in 循环
+- switch/case
+- try/catch/throw
+- break/continue
+- with 语句
+- getter/setter
+- instanceof/in 运算符
+- delete/void 运算符
 
 ---
 
 ## 参考资料
 
 - [ECMAScript 5.1 规范](https://262.ecma-international.org/5.1/)
-- [MDN JavaScript 参考](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference)
+- [Crafting Interpreters](https://craftinginterpreters.com/)

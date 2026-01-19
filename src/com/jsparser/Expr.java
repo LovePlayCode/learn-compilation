@@ -10,32 +10,52 @@ import java.util.List;
 abstract class Expr {
     /**
      * 访问者接口
+     * 
      * @param <R> 访问方法的返回类型
      */
     interface Visitor<R> {
         R visitLiteralExpr(Literal expr);
+
         R visitArrayLiteralExpr(ArrayLiteral expr);
+
         R visitObjectLiteralExpr(ObjectLiteral expr);
+
         R visitIdentifierExpr(Identifier expr);
+
         R visitThisExpr(This expr);
+
         R visitUnaryExpr(Unary expr);
+
         R visitBinaryExpr(Binary expr);
+
         R visitLogicalExpr(Logical expr);
+
         R visitConditionalExpr(Conditional expr);
+
         R visitSequenceExpr(Sequence expr);
+
         R visitAssignExpr(Assign expr);
+
         R visitMemberExpr(Member expr);
+
         R visitCallExpr(Call expr);
+
         R visitNewExpr(New expr);
+
         R visitFunctionExpr(Function expr);
+
         R visitTypeofExpr(Typeof expr);
+
         R visitVoidExpr(Void expr);
+
         R visitDeleteExpr(Delete expr);
+
         R visitInstanceofExpr(Instanceof expr);
+
         R visitInExpr(In expr);
+
         R visitGroupingExpr(Grouping expr);
     }
-
 
     /**
      * Literal expr
@@ -241,6 +261,14 @@ abstract class Expr {
             this.object = object;
             this.property = property;
             this.computed = computed;
+            this.computedProperty = null;
+        }
+
+        Member(Expr object, Expr computedProperty, boolean computed) {
+            this.object = object;
+            this.property = null;
+            this.computed = computed;
+            this.computedProperty = computedProperty;
         }
 
         @Override
@@ -251,6 +279,7 @@ abstract class Expr {
         final Expr object;
         final Token property;
         final boolean computed;
+        final Expr computedProperty;
     }
 
     /**
@@ -425,8 +454,9 @@ abstract class Expr {
 
     /**
      * 接受访问者
+     * 
      * @param visitor 访问者对象
-     * @param <R> 返回类型
+     * @param <R>     返回类型
      * @return 访问结果
      */
     abstract <R> R accept(Visitor<R> visitor);
