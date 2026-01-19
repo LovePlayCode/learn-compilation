@@ -1,2 +1,4 @@
 var c = 1;
 var a = ++c;
+var aaa = (1 + 1) * 3;
+var ccc = 1 * 1 + 3;
