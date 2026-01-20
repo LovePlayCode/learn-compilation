@@ -11,6 +11,7 @@ import java.util.List;
 public class Lox {
     static boolean hadError = false;
     static boolean hadRuntimeError = false;
+    static boolean astOnly = false; // 仅打印 AST，不执行
     private static final Interpreter interpreter = new Interpreter();
 
     static void error(int line, String message) {
@@ -39,11 +40,24 @@ public class Lox {
     }
 
     public static void main(String[] args) throws IOException {
-        if (args.length > 1) {
-            System.out.println("Usage: jlox [script]");
+        // 解析命令行参数
+        int fileArgIndex = 0;
+        for (int i = 0; i < args.length; i++) {
+            if (args[i].equals("--ast")) {
+                astOnly = true;
+            } else {
+                fileArgIndex = i;
+                break;
+            }
+        }
+
+        int remainingArgs = args.length - (astOnly ? 1 : 0);
+
+        if (remainingArgs > 1) {
+            System.out.println("Usage: jlox [--ast] [script]");
             System.exit(64);
-        } else if (args.length == 1) {
-            runFile(args[0]);
+        } else if (remainingArgs == 1) {
+            runFile(args[fileArgIndex]);
         } else {
             runPrompt();
         }
@@ -85,11 +99,15 @@ public class Lox {
         if (hadError)
             return;
 
-        // 打印 AST 树形结构（在解释执行之前）
-        System.out.println("=== AST ===");
-        System.out.println(new AstTreePrinter().print(statements));
-        System.out.println("=== Output ===");
-
-        interpreter.interpret(statements);
+        if (astOnly) {
+            // 仅打印 AST 树形结构
+            System.out.println(new AstTreePrinter().print(statements));
+        } else {
+            // 打印 AST + 执行代码
+            System.out.println("=== AST ===");
+            System.out.println(new AstTreePrinter().print(statements));
+            System.out.println("=== Output ===");
+            interpreter.interpret(statements);
+        }
     }
 }

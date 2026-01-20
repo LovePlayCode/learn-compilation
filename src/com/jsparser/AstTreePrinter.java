@@ -435,28 +435,53 @@ class AstTreePrinter implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
         return null;
     }
 
+    /**
+     * 获取成员表达式的完整路径，如 console.log
+     */
+    private String getMemberPath(Expr expr) {
+        if (expr instanceof Expr.Identifier) {
+            return ((Expr.Identifier) expr).name.lexeme;
+        } else if (expr instanceof Expr.Member) {
+            Expr.Member member = (Expr.Member) expr;
+            String objectPath = getMemberPath(member.object);
+            if (member.computed) {
+                return objectPath + "[...]";
+            } else {
+                return objectPath + "." + member.property.lexeme;
+            }
+        } else if (expr instanceof Expr.Call) {
+            Expr.Call call = (Expr.Call) expr;
+            return getMemberPath(call.callee) + "()";
+        }
+        return "?";
+    }
+
     @Override
     public Void visitMemberExpr(Expr.Member expr) {
-        String propName = expr.computed ? "[computed]" : "." + expr.property.lexeme;
-        printNode("Member(" + propName + ")");
+        // 显示完整路径，如 Member(console.log)
+        String fullPath = getMemberPath(expr);
+        printNode("Member: " + fullPath);
         pushPrefix();
         
-        // 打印对象
+        // 打印对象部分
         isLast = !expr.computed;
-        printNode("object:");
+        printNode("object: " + getMemberPath(expr.object));
         pushPrefix();
         isLast = true;
         printExpr(expr.object);
         popPrefix();
         
-        // 如果是计算属性，打印属性表达式
+        // 打印属性部分
         if (expr.computed && expr.computedProperty != null) {
             isLast = true;
-            printNode("property:");
+            printNode("property: [computed]");
             pushPrefix();
             isLast = true;
             printExpr(expr.computedProperty);
             popPrefix();
+        } else if (!expr.computed) {
+            isLast = true;
+            printNode("property: " + expr.property.lexeme);
         }
         
         popPrefix();
@@ -465,12 +490,14 @@ class AstTreePrinter implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
 
     @Override
     public Void visitCallExpr(Expr.Call expr) {
-        printNode("Call");
+        // 显示完整调用路径，如 Call: console.log(...)
+        String calleePath = getMemberPath(expr.callee);
+        printNode("Call: " + calleePath + "(" + expr.arguments.size() + " args)");
         pushPrefix();
         
         // 打印被调用者
         isLast = expr.arguments.isEmpty();
-        printNode("callee:");
+        printNode("callee: " + calleePath);
         pushPrefix();
         isLast = true;
         printExpr(expr.callee);
@@ -479,11 +506,15 @@ class AstTreePrinter implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
         // 打印参数
         if (!expr.arguments.isEmpty()) {
             isLast = true;
-            printNode("arguments:");
+            printNode("arguments: [" + expr.arguments.size() + "]");
             pushPrefix();
             for (int i = 0; i < expr.arguments.size(); i++) {
                 isLast = (i == expr.arguments.size() - 1);
+                printNode("[" + i + "]:");
+                pushPrefix();
+                isLast = true;
                 printExpr(expr.arguments.get(i));
+                popPrefix();
             }
             popPrefix();
         }

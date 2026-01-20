@@ -14,4 +14,4 @@ class Animal < Brid {
         print "eat";
     }
 }
-Animal().eat();
+var time = clock();

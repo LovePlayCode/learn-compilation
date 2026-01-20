@@ -49,30 +49,7 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     private Environment environment = globals;
 
     Interpreter() {
-        globals.define("console.log", new LoxCallable() {
-            @Override
-            public int arity() {
-                return -1; // 可变参数
-            }
-
-            @Override
-            public Object call(Interpreter interpreter,
-                    List<Object> arguments) {
-                StringBuilder sb = new StringBuilder();
-                for (int i = 0; i < arguments.size(); i++) {
-                    if (i > 0)
-                        sb.append(" ");
-                    sb.append(stringify(arguments.get(i)));
-                }
-                System.out.println(sb.toString());
-                return null; // console.log 返回 undefined
-            }
-
-            @Override
-            public String toString() {
-                return "function log() { [native code] }";
-            }
-        });
+        globals.define("console", new Console());
     }
 
     /**
@@ -337,7 +314,6 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
      */
     @Override
     public Object visitMemberExpr(Member expr) {
-        // TODO Auto-generated method stub
         return null;
     }
 
@@ -499,6 +475,8 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
      */
     @Override
     public Void visitFunctionStmt(com.jsparser.Stmt.Function stmt) {
+        LoxFunction function = new LoxFunction(stmt);
+        environment.define(stmt.name.lexeme, function);
         return null;
     }
 
