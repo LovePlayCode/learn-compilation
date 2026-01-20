@@ -52,7 +52,31 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     private final Map<Expr, Integer> locals = new HashMap<>();
 
     Interpreter() {
-        globals.define("console", new Console());
+        Map<String, Object> console = new HashMap<>();
+        console.put("log", new LoxCallable() {
+            @Override
+            public int arity() {
+                return -1;
+            }
+
+            @Override
+            public Object call(Interpreter interpreter, List<Object> arguments) {
+                StringBuilder sb = new StringBuilder();
+                for (int i = 0; i < arguments.size(); i++) {
+                    if (i > 0)
+                        sb.append(" ");
+                    sb.append(stringify(arguments.get(i)));
+                }
+                System.out.println(sb.toString());
+                return null;
+            }
+
+            @Override
+            public String toString() {
+                return "function log() { [native code] }";
+            }
+        });
+        globals.define("console", console);
     }
 
     void resolve(Expr expr, int depth) {
@@ -254,8 +278,9 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
      */
     @Override
     public Object visitFunctionExpr(Function expr) {
-        // TODO Auto-generated method stub
-        return null;
+        // 将函数表达式转换为可调用的 LoxFunction
+        // 需要创建一个临时的 Stmt.Function 或修改 LoxFunction 支持 Expr.Function
+        return new LoxFunction(Stmt.Function.convertToFunction(expr), this.environment);
     }
 
     private Object evaluate(Expr expr) {
@@ -345,7 +370,12 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
      */
     @Override
     public Object visitMemberExpr(Member expr) {
-        return null;
+        Object object = evaluate(expr.object);
+        if (object instanceof Map) {
+            return ((Map<?, ?>) object).get(expr.property.lexeme);
+        }
+        throw new RuntimeError(expr.property, "Property access on non-object.");
+
     }
 
     /**
@@ -364,8 +394,25 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
      */
     @Override
     public Object visitObjectLiteralExpr(ObjectLiteral expr) {
-        // TODO Auto-generated method stub
-        return null;
+        Map<String, Object> object = new HashMap<>();
+
+        for (Property prop : expr.properties) {
+            // 获取属性名
+            String key;
+            if (prop.key instanceof Expr.Identifier) {
+                key = ((Expr.Identifier) prop.key).name.lexeme;
+            } else if (prop.key instanceof Expr.Literal) {
+                key = prop.key.toString();
+            } else {
+                throw new RuntimeError(null, "Invalid property key");
+            }
+
+            // 求值属性值
+            Object value = evaluate(prop.value);
+            object.put(key, value);
+        }
+
+        return object;
     }
 
     /**
@@ -493,7 +540,7 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     public Void visitVarStmt(Var stmt) {
         if (stmt.declarations.size() > 0) {
             for (VarDeclarator declarations : stmt.declarations) {
-                Object value = declarations.init;
+                Object value = evaluate(declarations.init);
                 environment.define(declarations.name.lexeme, value);
             }
         }

@@ -131,6 +131,10 @@ abstract class Stmt {
             this.body = body;
         }
 
+        static Function convertToFunction(Expr.Function expr) {
+            return new Function(expr.name, expr.params, new Stmt.Block(expr.body));
+        }
+
         @Override
         <R> R accept(Visitor<R> visitor) {
             return visitor.visitFunctionStmt(this);
