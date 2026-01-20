@@ -35,7 +35,7 @@ import com.jsparser.Stmt.For;
 import com.jsparser.Stmt.ForIn;
 import com.jsparser.Stmt.If;
 import com.jsparser.Stmt.Labeled;
-import com.jsparser.Stmt.Return;
+
 import com.jsparser.Stmt.Switch;
 import com.jsparser.Stmt.Throw;
 import com.jsparser.Stmt.Try;
@@ -573,9 +573,12 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
      * 例: return;, return x + y;
      */
     @Override
-    public Void visitReturnStmt(Return stmt) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'visitReturnStmt'");
+    public Void visitReturnStmt(Stmt.Return stmt) {
+        Object value = null;
+        if (stmt.argument != null) {
+            value = evaluate(stmt.argument);
+        }
+        throw new Return(value);
     }
 
     /**

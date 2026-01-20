@@ -497,6 +497,16 @@ public class Parser {
         return body;
     }
 
+    private Stmt ReturnStatement() {
+        Token keyword = previous();
+        Expr value = null;
+        if (!check(TokenType.SEMICOLON)) {
+            value = Expression();
+        }
+        consume(TokenType.SEMICOLON, "期望一个;在 return 后面.");
+        return new Stmt.Return(keyword, value);
+    }
+
     private Stmt Statement() {
         if (match(TokenType.VAR)) {
             return VariableStatement();
@@ -515,6 +525,9 @@ public class Parser {
         }
         if (match(TokenType.LEFT_PAREN)) {
             return Block();
+        }
+        if (match(TokenType.RETURN)) {
+            return ReturnStatement();
         }
         return ExpressionStatement();
     }
