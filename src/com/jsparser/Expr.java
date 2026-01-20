@@ -107,6 +107,7 @@ abstract class Expr {
 
     /**
      * Identifier expr
+     * 变量引用表达式，如: x, y, z
      */
     static class Identifier extends Expr {
         Identifier(Token name) {

@@ -15,3 +15,8 @@ class Animal < Brid {
     }
 }
 var time = clock();
+var a = "Hello World";
+
+{
+    var a = a;
+}
