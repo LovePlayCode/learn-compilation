@@ -1,7 +1,9 @@
 package com.jsparser;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.jsparser.Expr.ArrayLiteral;
 import com.jsparser.Expr.Assign;
@@ -47,9 +49,14 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     // 全局作用域的概念
     final Environment globals = new Environment();
     private Environment environment = globals;
+    private final Map<Expr, Integer> locals = new HashMap<>();
 
     Interpreter() {
         globals.define("console", new Console());
+    }
+
+    void resolve(Expr expr, int depth) {
+        locals.put(expr, depth);
     }
 
     /**
@@ -68,8 +75,22 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
      */
     @Override
     public Object visitAssignExpr(Assign expr) {
-        // TODO Auto-generated method stub
-        return null;
+        Object value = evaluate(expr.value);
+
+        if (expr.target instanceof Expr.Identifier) {
+            // 变量赋值：a = 1
+            Token name = ((Expr.Identifier) expr.target).name;
+            Integer distance = locals.get(expr);
+            if (distance != null) {
+                environment.assignAt(distance, name, value);
+            } else {
+                globals.assign(name, value);
+            }
+        } else if (expr.target instanceof Expr.Member) {
+            // TODO: 属性赋值 obj.x = 1
+        }
+
+        return value;
     }
 
     private String stringify(Object object) {
@@ -251,13 +272,23 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         return evaluate(expr.expression);
     }
 
+    private Object lookUpVariable(Token name, Expr expr) {
+        Integer distance = locals.get(expr);
+        if (distance != null) {
+            return environment.getAt(distance, name.lexeme);
+        } else {
+            return globals.get(name);
+        }
+    }
+
     /**
+     * visitVariableExpr
      * 标识符表达式，从环境中查找变量的值
      * 例: x, myVar, console
      */
     @Override
     public Object visitIdentifierExpr(Identifier expr) {
-        return environment.get(expr.name);
+        return lookUpVariable(expr.name, expr);
     }
 
     /**

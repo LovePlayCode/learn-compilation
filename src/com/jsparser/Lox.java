@@ -107,6 +107,11 @@ public class Lox {
             System.out.println("=== AST ===");
             System.out.println(new AstTreePrinter().print(statements));
             System.out.println("=== Output ===");
+            Resolver resolver = new Resolver(interpreter);
+            resolver.resolve(statements);
+
+            if (hadError)
+                return;
             interpreter.interpret(statements);
         }
     }
