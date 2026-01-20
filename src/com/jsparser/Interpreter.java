@@ -475,7 +475,8 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
      */
     @Override
     public Void visitFunctionStmt(com.jsparser.Stmt.Function stmt) {
-        LoxFunction function = new LoxFunction(stmt);
+        // 创建函数的时候捕获当前的闭包环境
+        LoxFunction function = new LoxFunction(stmt, environment);
         environment.define(stmt.name.lexeme, function);
         return null;
     }
