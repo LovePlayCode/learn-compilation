@@ -73,6 +73,32 @@ public class Parser {
         return false;
     }
 
+    private Expr FunctionExpression() {
+        // 函数名是可选的（匿名函数 vs 命名函数表达式）
+        Token nameToken = null;
+        if (match(TokenType.IDENTIFIER)) {
+            nameToken = previous();
+        }
+
+        consume(TokenType.LEFT_PAREN, "Expect '(' after function name.");
+
+        // 解析参数列表
+        List<Token> params = new ArrayList<>();
+        if (!check(TokenType.RIGHT_PAREN)) {
+            do {
+                params.add(consume(TokenType.IDENTIFIER, "Expect parameter name."));
+            } while (match(TokenType.COMMA));
+        }
+        consume(TokenType.RIGHT_PAREN, "Expect ')' after parameters.");
+
+        // 函数体必须是 Block
+        consume(TokenType.LEFT_BRACE, "Expect '{' before function body.");
+        Stmt.Block body = (Stmt.Block) Block();
+
+        // Expr.Function 期望 List<Stmt>，从 Block 中提取
+        return new Expr.Function(nameToken, params, body.getStatements());
+    }
+
     private Expr PrimaryExpression() {
         if (match(TokenType.FALSE))
             return new Expr.Literal(false);
@@ -92,6 +118,29 @@ public class Parser {
             Expr expr = AssignmentExpression();
             consume(TokenType.RIGHT_PAREN, "Expect ')' after expression.");
             return new Expr.Grouping(expr);
+        }
+        if (match(TokenType.LEFT_BRACE)) {
+            List<Property> properties = new ArrayList<>();
+            if (!check(TokenType.RIGHT_BRACE)) {
+                do {
+                    if (match(TokenType.IDENTIFIER, TokenType.STRING, TokenType.NUMBER)) {
+                        Token nameToken = previous();
+                        // 将 Token 转换为 Expr（Identifier 或 Literal）
+                        Expr key = (nameToken.type == TokenType.IDENTIFIER)
+                                ? new Expr.Identifier(nameToken)
+                                : new Expr.Literal(nameToken.literal);
+                        consume(TokenType.COLON, "Expect ':' after property name.");
+                        Expr value = AssignmentExpression();
+                        properties.add(
+                                new Property(key, value, Property.Kind.INIT));
+                    }
+                } while (match(TokenType.COMMA) && !isAtEnd() && !check(TokenType.RIGHT_BRACE));
+            }
+            consume(TokenType.RIGHT_BRACE, "Expect '}' after object literal.");
+            return new Expr.ObjectLiteral(properties);
+        }
+        if (match(TokenType.FUNCTION)) {
+            return FunctionExpression();
         }
         throw error(peek(), "Expect expression.");
     }
