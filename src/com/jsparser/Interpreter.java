@@ -76,7 +76,7 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
                 return "function log() { [native code] }";
             }
         });
-        globals.define("console", console);
+        globals.define("console", new LoxObj(console));
     }
 
     void resolve(Expr expr, int depth) {

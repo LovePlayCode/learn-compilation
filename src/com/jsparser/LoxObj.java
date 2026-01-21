@@ -34,4 +34,26 @@ public class LoxObj implements LoxCallable {
 
         return null;
     }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("{ ");
+        boolean first = true;
+        for (Map.Entry<String, Object> entry : properties.entrySet()) {
+            if (!first) {
+                sb.append(", ");
+            }
+            first = false;
+            sb.append(entry.getKey()).append(": ");
+            Object value = entry.getValue();
+            if (value instanceof String) {
+                sb.append("\"").append(value).append("\"");
+            } else {
+                sb.append(value);
+            }
+        }
+        sb.append(" }");
+        return sb.toString();
+    }
 }

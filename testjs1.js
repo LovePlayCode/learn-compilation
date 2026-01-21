@@ -5,7 +5,12 @@ var obj = {
     },
     print2: function(){
         var a2 = "c";
-        console.log(a2);
+        function inner3(){
+            console.log(this);
+        }
+
+        return inner3;
     }
 };
-console.log(obj);
+var a = obj.print2();
+a();
