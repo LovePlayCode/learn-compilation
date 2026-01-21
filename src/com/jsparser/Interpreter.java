@@ -435,13 +435,39 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     }
 
     /**
-     * typeof 运算符表达式，返回操作数的类型字符串
-     * 例: typeof x 返回 "undefined"/"number"/"string"/"boolean"/"object"/"function"
+     * typeof 运算符，返回操作数的类型字符串
+     * JavaScript typeof 返回值：
+     * - "undefined" - undefined
+     * - "boolean"   - true/false
+     * - "number"    - 数字
+     * - "string"    - 字符串
+     * - "object"    - 对象或 null
+     * - "function"  - 函数
      */
     @Override
     public Object visitTypeofExpr(Typeof expr) {
-        // TODO Auto-generated method stub
-        return null;
+        Object value = evaluate(expr.operand);
+        
+        if (value == null) {
+            return "undefined";
+        }
+        if (value instanceof Boolean) {
+            return "boolean";
+        }
+        if (value instanceof Double) {
+            return "number";
+        }
+        if (value instanceof String) {
+            return "string";
+        }
+        if (value instanceof LoxFunction) {
+            return "function";
+        }
+        if (value instanceof LoxObj) {
+            return "object";
+        }
+        // 其他情况默认返回 object
+        return "object";
     }
 
     private boolean isTruthy(Object object) {

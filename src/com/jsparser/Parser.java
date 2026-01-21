@@ -309,9 +309,14 @@ public class Parser {
     }
 
     private Expr UnaryExpressionExpression() {
-        // 先检查前缀运算符
-        if (match(TokenType.BANG, TokenType.PLUS_PLUS, TokenType.MINUS_MINUS, TokenType.MINUS, TokenType.PLUS,
-                TokenType.TYPEOF)) {
+        // typeof 单独处理，使用专门的 Expr.Typeof 节点
+        if (match(TokenType.TYPEOF)) {
+            Token operator = previous();
+            Expr right = UnaryExpressionExpression();
+            return new Expr.Typeof(operator, right);
+        }
+        // 其他前缀运算符
+        if (match(TokenType.BANG, TokenType.PLUS_PLUS, TokenType.MINUS_MINUS, TokenType.MINUS, TokenType.PLUS)) {
             Token operator = previous();
             Expr right = UnaryExpressionExpression();
             return new Expr.Unary(operator, right, true);
