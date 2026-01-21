@@ -438,16 +438,16 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
      * typeof 运算符，返回操作数的类型字符串
      * JavaScript typeof 返回值：
      * - "undefined" - undefined
-     * - "boolean"   - true/false
-     * - "number"    - 数字
-     * - "string"    - 字符串
-     * - "object"    - 对象或 null
-     * - "function"  - 函数
+     * - "boolean" - true/false
+     * - "number" - 数字
+     * - "string" - 字符串
+     * - "object" - 对象或 null
+     * - "function" - 函数
      */
     @Override
     public Object visitTypeofExpr(Typeof expr) {
         Object value = evaluate(expr.operand);
-        
+
         if (value == null) {
             return "undefined";
         }
