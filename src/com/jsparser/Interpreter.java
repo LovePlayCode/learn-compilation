@@ -431,8 +431,7 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
      */
     @Override
     public Object visitThisExpr(This expr) {
-        // TODO Auto-generated method stub
-        return null;
+        return lookUpVariable(expr.keyword, expr);
     }
 
     /**

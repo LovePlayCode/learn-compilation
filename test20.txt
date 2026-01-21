@@ -1,13 +1,11 @@
 class Aniaml {
   printA(){
-    fun printB(){
-      print this;
+    fun fn1(){
+        print this;
     }
-    return printB;
+    return fn1;
   }
-
 }
 var c = Aniaml();
-c.age = 123;
-var fn = c.printA();
-print fn();
+var fn222 = c.printA();
+fn222();

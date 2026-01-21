@@ -5,11 +5,11 @@ var obj = {
     },
     print2: function(){
         var a2 = "c";
-        function inner3(){
+        var inner = function (){
             console.log(this);
-        }
+        };
 
-        return inner3;
+        return inner;
     }
 };
 var a = obj.print2();
