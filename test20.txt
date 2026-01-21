@@ -1,5 +1,5 @@
-fun add(){}
-var obj = {
-    a(){}
+class Aniaml {
+  age = 10
+
 }
-obj.a();
+Animal().age;

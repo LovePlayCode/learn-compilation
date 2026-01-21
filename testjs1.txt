@@ -1,1 +1,7 @@
-console.log("123");
+var obj = {
+    print: function(){
+        var a1 = "b";
+        console.log(a1);
+    }
+};
+obj.print();

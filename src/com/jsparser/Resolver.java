@@ -112,6 +112,19 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
         currentFunction = enclosingFunction;
     }
 
+    private void resolveFunction(Expr.Function function, FunctionType type) {
+        FunctionType enclosingFunction = currentFunction;
+        currentFunction = type;
+        beginScope();
+        for (Token param : function.params) {
+            declare(param);
+            define(param);
+        }
+        resolve(function.body);
+        endScope();
+        currentFunction = enclosingFunction;
+    }
+
     @Override
     public Void visitFunctionStmt(Stmt.Function stmt) {
         declare(stmt.name);
@@ -216,6 +229,11 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
 
     @Override
     public Void visitObjectLiteralExpr(Expr.ObjectLiteral expr) {
+        beginScope();
+        for (Property properties : expr.properties) {
+            resolve(properties.value);
+        }
+        endScope();
         return null;
     }
 
@@ -319,6 +337,12 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
 
     @Override
     public Void visitFunctionExpr(Expr.Function expr) {
+        // 函数表达式没有name;
+        if (expr.name != null) {
+            declare(expr.name);
+            define(expr.name);
+        }
+        resolveFunction(expr, FunctionType.FUNCTION);
         return null;
     }
 
