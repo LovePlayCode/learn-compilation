@@ -1,5 +1,13 @@
 class Aniaml {
-  age = 10
+  printA(){
+    fun printB(){
+      print this;
+    }
+    return printB;
+  }
 
 }
-Animal().age;
+var c = Aniaml();
+c.age = 123;
+var fn = c.printA();
+print fn();

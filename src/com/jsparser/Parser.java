@@ -142,6 +142,9 @@ public class Parser {
         if (match(TokenType.FUNCTION)) {
             return FunctionExpression();
         }
+        if (match(TokenType.THIS)) {
+            return new Expr.This(previous());
+        }
         throw error(peek(), "Expect expression.");
     }
 

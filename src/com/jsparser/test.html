@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    
+</body>
+<script>
+    const obj = {
+        print(){
+            function inner(){
+                console.log('inner==',this)
+            }
+            inner()
+            console.log('print==',this)
+            return inner;
+        },
+        name: 'lhl'
+    }
+    const cl = obj.print()
+    cl()
+</script>
+</html>

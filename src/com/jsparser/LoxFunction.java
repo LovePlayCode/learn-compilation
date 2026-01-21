@@ -22,6 +22,12 @@ class LoxFunction implements LoxCallable {
         return declaration.params.size();
     }
 
+    public LoxFunction bind(LoxObj instance) {
+        Environment environment = new Environment(closure);
+        environment.define("this", instance);
+        return new LoxFunction(declaration, environment);
+    }
+
     @Override
     public Object call(Interpreter interpreter,
             List<Object> arguments) {
@@ -41,6 +47,9 @@ class LoxFunction implements LoxCallable {
 
     @Override
     public String toString() {
+        if (declaration.name == null) {
+            return "<anonymous fn>";
+        }
         return "<fn " + declaration.name.lexeme + ">";
     }
 }

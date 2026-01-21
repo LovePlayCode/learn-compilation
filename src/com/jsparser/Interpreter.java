@@ -371,8 +371,8 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     @Override
     public Object visitMemberExpr(Member expr) {
         Object object = evaluate(expr.object);
-        if (object instanceof Map) {
-            return ((Map<?, ?>) object).get(expr.property.lexeme);
+        if (object instanceof LoxObj) {
+            return ((LoxObj) object).get(expr.property);
         }
         throw new RuntimeError(expr.property, "Property access on non-object.");
 
@@ -395,7 +395,6 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     @Override
     public Object visitObjectLiteralExpr(ObjectLiteral expr) {
         Map<String, Object> object = new HashMap<>();
-
         for (Property prop : expr.properties) {
             // 获取属性名
             String key;
@@ -411,8 +410,9 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
             Object value = evaluate(prop.value);
             object.put(key, value);
         }
+        var loxObj = new LoxObj(object);
 
-        return object;
+        return loxObj;
     }
 
     /**
